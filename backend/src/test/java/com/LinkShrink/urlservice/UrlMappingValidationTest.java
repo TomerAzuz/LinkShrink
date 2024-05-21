@@ -3,11 +3,11 @@ package com.LinkShrink.urlservice;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@WebMvcTest(CustomUrlValidator.class)
 public class UrlMappingValidationTest {
 
     @Autowired
