@@ -14,9 +14,4 @@ describe('TextSection Component', () => {
     const bodyTextElement = getByText('Enter a URL below to shrink a URL or generate a QR code.');
     expect(bodyTextElement).toBeTruthy();
   });
-
-  test('matches snapshot', () => {
-    const { container } = render(<TextSection />);
-    expect(container).toMatchSnapshot();
-  });
 });

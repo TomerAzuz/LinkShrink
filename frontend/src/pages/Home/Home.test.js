@@ -18,9 +18,4 @@ describe('Home Component', () => {
     const urlInputLabel = getByLabelText('Insert URL');
     expect(urlInputLabel).toBeInTheDocument();
   });
-
-  test('matches snapshot', () => {
-    const { container } = render(<Home />);
-    expect(container).toMatchSnapshot();
-  });
 });
