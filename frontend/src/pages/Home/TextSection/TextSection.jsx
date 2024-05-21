@@ -1,4 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import React from 'react';
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 const TextSection = () => (
   <Box sx={{ width: '100%', textAlign: 'center', mb: 4 }}>

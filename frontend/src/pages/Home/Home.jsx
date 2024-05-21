@@ -1,7 +1,8 @@
+import React from 'react';
 import { Container } from "@mui/material";
 
-import TextSection from './TextSection';
-import URLInput from "./URLInput";
+import TextSection from './TextSection/TextSection';
+import UrlInput from "./UrlInput/UrlInput";
 
 const Home = () => {
   return (
@@ -17,7 +18,7 @@ const Home = () => {
       }}
     >
       <TextSection />
-      <URLInput />
+      <UrlInput />
     </Container>
   );
 };
