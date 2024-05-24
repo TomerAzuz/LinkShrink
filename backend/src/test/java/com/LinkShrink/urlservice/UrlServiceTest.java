@@ -73,7 +73,11 @@ public class UrlServiceTest {
     void testHandleRedirectionValidShortCode() {
         String shortCode = "abc123";
         String longUrl = "http://www.example.com";
-        UrlMapping urlMapping = new UrlMapping(1L, longUrl, shortCode, null, 0L, new Date(), null);
+        UrlMapping urlMapping = UrlMapping.hiddenBuilder()
+            .longUrl(longUrl)
+            .shortCode(shortCode)
+            .numClicks(0L)
+            .build();
 
         when(urlRepository.findByShortCode(shortCode)).thenReturn(Optional.of(urlMapping));
 
@@ -96,8 +100,12 @@ public class UrlServiceTest {
 
     @Test
     void testIncrementClicksValidShortCode() {
+        String longUrl = "http://www.example.com";
         String shortCode = "abc123";
-        UrlMapping urlMapping = new UrlMapping(1L, "http://www.example.com", shortCode, null, 0L, new Date(), null);
+        UrlMapping urlMapping = UrlMapping.hiddenBuilder()
+                .longUrl(longUrl)
+                .shortCode(shortCode)
+                .numClicks(0L).build();
 
         when(urlRepository.findByShortCode(shortCode)).thenReturn(Optional.of(urlMapping));
         when(urlRepository.save(any(UrlMapping.class))).thenAnswer(invocation -> invocation.getArgument(0));

@@ -1,66 +1,73 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
-import SubmitButton from '../../../components/Buttons/SubmitButton';
 import UrlResult from '../UrlResult/UrlResult';
 import RequestService from '../../../services/RequestService';
+import { validateUrl } from '../../../utils/UrlValidator';
+import Loader from '../../../components/Loader/Loader';
+import { URL_SHORTEN, URL_QRCODE } from '../../../constants/urlConstants';
+import UrlForm from '../../../components/UrlForm/UrlForm';
+import TabPanel from '../../../components/TabPanel/TabPanel';
 
 const UrlInput = () => {
-  const [inputUrl, setInputUrl] = useState('');
   const [urlMapping, setUrlMapping] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [currentTab, setCurrentTab] = useState(0);
 
-  const handleSubmit = async (event, endpoint) => {
-    event.preventDefault();
+  const handleSubmit = async (values, { setSubmitting, setErrors }, endpoint) => {
+    setSubmitting(true);
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await RequestService.post(endpoint, {
-        longUrl: inputUrl
-      });
-      console.log(response)
+      const sanitizedUrl = validateUrl(values.url);
+      const response = await RequestService.post(
+        endpoint, 
+        { longUrl: sanitizedUrl }, 
+        true
+      );
       setUrlMapping(response);
-      setError(null);
     } catch (error) {
-      setError(error);
+      if (error.response) {
+        setErrors({ url: error.response.data });
+      } else {
+        setErrors({ url: error.message });
+      }
     } finally {
       setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  const handleChange = (event) => {
-    setInputUrl(event.target.value);
-  };
-
   const resetUrlInput = () => {
-    setInputUrl('');
     setUrlMapping(null);
-    setError(null);
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (urlMapping) return <UrlResult 
-                        urlMapping={urlMapping}
-                        resetUrlInput={resetUrlInput} 
-                      /> 
+  const handleChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
+
+  if (loading) return <Loader />;
+  if (urlMapping) return (
+    <UrlResult 
+      urlMapping={urlMapping}
+      resetUrlInput={resetUrlInput} 
+      loading={loading}
+    />
+  ); 
+
   return (
     <Box sx={{ width: '70%', textAlign: 'center' }}>
-      <form>
-        <TextField 
-          id="url-input" 
-          label="Insert URL" 
-          variant="outlined"
-          fullWidth
-          value={inputUrl}
-          onChange={handleChange}
-          error={!!error}
-          helperText={error?.response?.data || ''}
-          sx={{ mb: 2 }}
-        />
-        <SubmitButton onClick={(event => handleSubmit(event, '/shorten'))} title={'Shrink URL'}/>
-        <SubmitButton onClick={(event) => handleSubmit(event, '/qr')} title={'Generate QR Code'}/>
-      </form>
+      <Tabs value={currentTab} onChange={handleChange}>
+        <Tab label="Shrink URL" value={0} />
+        <Tab label="QR Code" value={1} />
+      </Tabs>
+      <TabPanel value={currentTab} index={0}>
+        <UrlForm handleSubmit={handleSubmit} buttonLabel={'Shrink URL'} endpoint={URL_SHORTEN} />
+      </TabPanel>
+      <TabPanel value={currentTab} index={1}>
+        <UrlForm handleSubmit={handleSubmit} buttonLabel={'Generate QR code'} endpoint={URL_QRCODE} />
+      </TabPanel>
     </Box>
   );
 };

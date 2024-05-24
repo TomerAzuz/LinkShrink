@@ -38,7 +38,10 @@ public class UrlControllerTest {
     @Test
     void testShortenUrl() throws Exception {
         String longUrl = "http://www.example.com";
-        UrlMapping savedMapping = new UrlMapping(1L, longUrl, "abc123", null, 0L, null, null);
+        UrlMapping savedMapping = UrlMapping.hiddenBuilder()
+                .longUrl(longUrl)
+                .shortCode("abc123")
+                .numClicks(0L).build();
         given(urlService.createUrlMapping(longUrl)).willReturn(savedMapping);
 
         UrlRequest urlRequest = new UrlRequest(longUrl);
@@ -56,9 +59,15 @@ public class UrlControllerTest {
 
     @Test
     void testRedirectUrlValidShortCode() throws Exception {
+        String baseUrl = "http://localhost:9000";
         String shortCode = "abc123";
         String longUrl = "httpp://www.example.com";
-        UrlMappingDTO mappingDTO = new UrlMappingDTO(longUrl, "http://localhost:9000/" + shortCode, null, 0L);
+        UrlMappingDTO mappingDTO = UrlMappingDTO.builder()
+                .longUrl(longUrl)
+                .shortUrl(baseUrl + "/" + shortCode)
+                .numClicks(0L)
+                .build();
+
         given(urlService.handleRedirection(shortCode)).willReturn(Optional.of(mappingDTO));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/url/{shortCode}", shortCode))
@@ -72,7 +81,10 @@ public class UrlControllerTest {
     void testGenerateQRCode() throws Exception {
         String longUrl = "http://www.example.com";
         String base64QrCode = "AQID";
-        UrlMapping savedMapping = new UrlMapping(1L, longUrl, null, base64QrCode, 0L, null, null);
+        UrlMapping savedMapping = UrlMapping.hiddenBuilder()
+                .longUrl(longUrl)
+                .qrCodeData(base64QrCode).build();
+
         given(urlService.generateQRCodeImage(longUrl)).willReturn(savedMapping);
 
         UrlRequest urlRequest = new UrlRequest(longUrl);

@@ -4,6 +4,7 @@ import com.LinkShrink.urlservice.dto.UrlMappingDTO;
 import com.LinkShrink.urlservice.exception.InvalidUrlException;
 import com.LinkShrink.urlservice.exception.ShortCodeNotFoundException;
 import com.LinkShrink.urlservice.model.UrlMapping;
+import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
 import net.glxn.qrgen.QRCode;
@@ -28,6 +29,9 @@ public class UrlService {
     private UrlRepository urlRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private CustomUrlValidator customUrlValidator;
 
     public UrlMapping createUrlMapping(String longUrl) {
@@ -40,8 +44,23 @@ public class UrlService {
         }
         Date expirationDate = getExpirationDate();
 
-        UrlMapping urlMapping = new UrlMapping(null, longUrl, shortCode, null, 0L, expirationDate, null);
+        User currentUser = userService.getCurrentUser();
+
+        UrlMapping urlMapping = UrlMapping
+                .hiddenBuilder()
+                .longUrl(longUrl)
+                .shortCode(shortCode)
+                .expirationDate(expirationDate)
+                .numClicks(0L)
+                .createdBy(currentUser.getId())
+                .build();
+
         return urlRepository.save(urlMapping);
+    }
+
+    public List<UrlMapping> getAllUrlMappings() {
+        User user = userService.getCurrentUser();
+        return urlRepository.findAllByCreatedBy(user.getId());
     }
 
     private Date getExpirationDate() {
@@ -55,7 +74,12 @@ public class UrlService {
     public Optional<UrlMappingDTO> handleRedirection(String shortCode) {
         Optional<String> longUrl = getLongUrlFromShortCode(shortCode);
         long numClicks = incrementClicks(shortCode);
-        return longUrl.map(url -> new UrlMappingDTO(url, baseUrl + "/" + shortCode, null, numClicks));
+        return longUrl.map(url -> UrlMappingDTO
+                .builder()
+                .longUrl(url)
+                .shortUrl(baseUrl + "/" + shortCode)
+                .numClicks(numClicks)
+                .build());
     }
 
     private Optional<String> getLongUrlFromShortCode(String shortCode) {
@@ -63,7 +87,7 @@ public class UrlService {
             Optional<UrlMapping> optionalMapping = urlRepository.findByShortCode(shortCode);
             return optionalMapping.map(UrlMapping::getLongUrl);
         } catch (Exception e) {
-            throw new ShortCodeNotFoundException("Error retrieving long URL for short code: " + shortCode);
+            throw new ShortCodeNotFoundException(e.getMessage());
         }
     }
 
@@ -80,7 +104,12 @@ public class UrlService {
         ByteArrayOutputStream stream = QRCode.from(longUrl).to(ImageType.PNG).stream();
         String base64QrCode = Base64.getEncoder().encodeToString(stream.toByteArray());
         Date expirationDate = getExpirationDate();
-        UrlMapping urlMapping = new UrlMapping(null, longUrl, null, base64QrCode, 0L, expirationDate, null);
+        UrlMapping urlMapping = UrlMapping.hiddenBuilder()
+                .longUrl(longUrl)
+                .qrCodeData(base64QrCode)
+                .expirationDate(expirationDate)
+                .numClicks(0L)
+                .build();
         return urlRepository.save(urlMapping);
     }
 

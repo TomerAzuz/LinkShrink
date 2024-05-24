@@ -1,16 +1,17 @@
 import React from 'react';
 import { Container } from "@mui/material";
 
+import Navbar from '../../components/Navbar/Navbar';
 import TextSection from './TextSection/TextSection';
 import UrlInput from "./UrlInput/UrlInput";
 
-const Home = () => {
-  return (
+const Home = () => (
+  <>
+    <Navbar />
     <Container 
       maxWidth="xl" 
       sx={{ 
         display: 'flex',
-        minHeight: '100vh',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
@@ -20,7 +21,8 @@ const Home = () => {
       <TextSection />
       <UrlInput />
     </Container>
-  );
-};
+  </>
+);
+
 
 export default Home;

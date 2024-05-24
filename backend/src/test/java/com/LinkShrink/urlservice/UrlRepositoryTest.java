@@ -45,7 +45,13 @@ public class UrlRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        urlMapping = new UrlMapping(null, "http://www.example.com",  "abc123", null, 0L, new Date(), null);
+        String longUrl = "http://www.example.com";
+        String shortCode = "abc123";
+        urlMapping = UrlMapping.hiddenBuilder()
+                        .longUrl(longUrl)
+                        .shortCode(shortCode)
+                        .expirationDate(new Date())
+                        .build();
         urlRepository.save(urlMapping);
     }
 

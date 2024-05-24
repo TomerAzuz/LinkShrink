@@ -1,15 +1,15 @@
 import React from 'react';
-import validUrl from 'valid-url';
+import validator from 'validator';
 
 export const validateUrl = (url) => {
-  // Check if the URL is valid
-  if (!validUrl.isWebUri(url)) {
-    throw new Error('Invalid URL');
-  }
-
-  // If URL doesn't contain a protocol, prepend 'https://'
+  // Add https:// if missing
   if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
+  }
+
+  // Use validator library to validate the URL
+  if (!validator.isURL(url)) {
+    throw new Error('Invalid URL');
   }
 
   return url.trim();

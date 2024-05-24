@@ -4,7 +4,6 @@ import com.LinkShrink.urlservice.dto.UrlMappingDTO;
 import com.LinkShrink.urlservice.dto.UrlRequest;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.service.UrlService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -47,6 +47,19 @@ public class UrlController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
+    @GetMapping("/my-links")
+    public ResponseEntity<List<UrlMappingDTO>> getUrlMappings() {
+        log.info("Getting all url mappings");
+        List<UrlMapping> urlMappings = urlService.getAllUrlMappings();
+        List<UrlMappingDTO> urlMappingDTOS = urlMappings
+                .stream()
+                .map(url -> new UrlMappingDTO(url.getLongUrl(),
+                        baseUrl + "/" + url.getShortCode(),
+                        url.getQrCodeData(),
+                        url.getNumClicks())).toList();
+        return ResponseEntity.ok(urlMappingDTOS);
+    }
+
     @GetMapping("{shortCode}")
     public ResponseEntity<UrlMappingDTO> redirectUrl(@PathVariable("shortCode") String shortCode) {
         log.info("Redirect from short code: {}", shortCode);
@@ -55,7 +68,7 @@ public class UrlController {
     }
 
     @PostMapping("/qr")
-    public ResponseEntity<UrlMappingDTO> generateQRCode(HttpServletResponse response, @Valid @RequestBody UrlRequest request) throws JsonProcessingException {
+    public ResponseEntity<UrlMappingDTO> generateQRCode(HttpServletResponse response, @Valid @RequestBody UrlRequest request) {
         String longUrl = request.getLongUrl();
         log.info("Generating QR code for URL: {}", longUrl);
 
