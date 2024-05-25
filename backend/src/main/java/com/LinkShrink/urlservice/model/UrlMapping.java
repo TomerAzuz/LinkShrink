@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
@@ -32,16 +31,13 @@ public class UrlMapping {
     @Column(columnDefinition = "TEXT")
     private String qrCodeData;
 
-    private long numClicks;
-
     @NotNull(message = "Expiration date is required")
     private Date expirationDate;
 
     @NotNull(message = "Created by field is required")
     private Long createdBy;
 
-    @CreationTimestamp
-    private String createdAt;
+    private Date createdAt;
 
     public static class UrlMappingBuilder {
         private String shortCode;
@@ -68,7 +64,7 @@ public class UrlMapping {
                 throw new IllegalArgumentException("Either shortCode or qrCodeData must be set");
             }
             return new UrlMapping(this.id, this.longUrl, this.shortCode, this.qrCodeData,
-                                  this.numClicks, this.expirationDate, this.createdBy, this.createdAt);
+                                  this.expirationDate, this.createdBy, this.createdAt);
         }
     }
 }

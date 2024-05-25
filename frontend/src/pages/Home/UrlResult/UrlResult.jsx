@@ -6,12 +6,14 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 
+import { qrCodeToBase64 } from '../../../utils/qrCodeToBase64';
+
 const UrlResult = ({ urlMapping, resetUrlInput }) => {
 
   const shortCode = urlMapping.data?.shortUrl && urlMapping.data.shortUrl.substring(urlMapping.data.shortUrl.lastIndexOf("/") + 1);
   const isQRCode = !!urlMapping.data?.qrCodeData;
 
-  const imageUrl = isQRCode ? `data:image/png;base64,${urlMapping.data.qrCodeData}` : '';
+  const imageUrl = isQRCode ? qrCodeToBase64(urlMapping.data.qrCodeData) : '';
 
   return (
     <Box display='flex' flexDirection='column' margin='12px'>

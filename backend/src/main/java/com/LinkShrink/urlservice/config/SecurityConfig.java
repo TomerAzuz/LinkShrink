@@ -1,6 +1,6 @@
 package com.LinkShrink.urlservice.config;
 
-import com.LinkShrink.urlservice.filters.JwtAuthenticationFilter;
+import com.LinkShrink.urlservice.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

@@ -10,6 +10,10 @@ class RequestService {
   post = (url, body, isAuthRequired) => {
     return createRequest("POST", url, body, isAuthRequired);
   };
+
+  delete = (url) => {
+    return createRequest("DELETE", url, null, true);
+  };
 };
 
 const createRequest = (method, url, body, isAuthRequired) => {

@@ -1,6 +1,6 @@
 package com.LinkShrink.urlservice.config;
 
-import com.LinkShrink.urlservice.filters.RateLimitingInterceptor;
+import com.LinkShrink.urlservice.filter.RateLimitingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

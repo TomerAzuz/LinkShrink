@@ -33,9 +33,9 @@ public class UrlControllerAdvice {
                 .orElse("Invalid URL error");
     }
 
-    @ExceptionHandler(ShortCodeNotFoundException.class)
+    @ExceptionHandler(UrlMappingNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleShortCodeNotFoundException(ShortCodeNotFoundException ex) {
+    public String handleUrlMappingNotFoundException(UrlMappingNotFoundException ex) {
         return ex.getMessage();
     }
 

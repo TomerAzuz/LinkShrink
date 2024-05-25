@@ -14,18 +14,24 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <AppBar position="static" elevation={0} sx={{ backgroundColor: 'white', padding: '0 20px' }}>
+    <AppBar 
+      position='static' 
+      elevation={0} 
+      sx={{ backgroundColor: 'white', padding: '0 20px' }}
+    >
       <Toolbar>
-        <Grid container justifyContent="space-between" alignItems="center">
+        <Grid container justifyContent='space-between' alignItems='center'>
           <Grid item xs={6} sm={3}>
             <Logo />
           </Grid>
           <Grid item xs={6} sm={9}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '14px' }}>
-              <Button sx={{ color: 'black' }}>Home</Button>
+              <Button sx={{ color: 'black' }} onClick={() => navigate('/')}>
+                Home
+              </Button>
               <Button sx={{ color: 'black' }}>About</Button>
-              <Divider orientation="vertical" flexItem />
-              {user && (
+              <Divider orientation='vertical' flexItem />
+              {user ? (
                 <>
                 <Button 
                   sx={{ color: 'black' }}
@@ -34,10 +40,24 @@ const Navbar = () => {
                   My Links
                 </Button>
                 <Button 
-                    sx={{ color: 'black' }}
-                    onClick={logout}
+                  sx={{ color: 'black' }} 
+                  onClick={logout}
                 >
                    Log out
+                </Button>
+                </>
+              ) : (
+                <>
+                <Button 
+                  sx={{ color: 'black' }}
+                  onClick={() => navigate('/login')}
+                >
+                  Log in
+                </Button>
+                <Button 
+                  sx={{ color: 'black' }} 
+                  onClick={() => navigate('/signup')}>
+                   Sign up
                 </Button>
                 </>
               )}

@@ -7,7 +7,6 @@ import UrlInput from "./UrlInput/UrlInput";
 
 const Home = () => (
   <>
-    <Navbar />
     <Container 
       maxWidth="xl" 
       sx={{ 

@@ -16,7 +16,8 @@ const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const response = await RequestService.get(USERS_ME, true);
-        setUser(response.data);
+        const { email, fullName } = response.data;
+        setUser({ email, fullName });
       } catch (error) {
         console.error('Failed to fetch user');
       }

@@ -1,4 +1,4 @@
-package com.LinkShrink.urlservice.filters;
+package com.LinkShrink.urlservice.filter;
 
 import com.LinkShrink.urlservice.service.JwtService;
 import jakarta.servlet.FilterChain;

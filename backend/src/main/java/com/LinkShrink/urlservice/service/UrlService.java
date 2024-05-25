@@ -1,18 +1,20 @@
 package com.LinkShrink.urlservice.service;
 
 import com.LinkShrink.urlservice.dto.UrlMappingDTO;
+import com.LinkShrink.urlservice.event.UrlAccessedEvent;
 import com.LinkShrink.urlservice.exception.InvalidUrlException;
-import com.LinkShrink.urlservice.exception.ShortCodeNotFoundException;
+import com.LinkShrink.urlservice.exception.UrlMappingNotFoundException;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
+import jakarta.servlet.http.HttpServletRequest;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
@@ -30,6 +32,9 @@ public class UrlService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private CustomUrlValidator customUrlValidator;
@@ -51,7 +56,7 @@ public class UrlService {
                 .longUrl(longUrl)
                 .shortCode(shortCode)
                 .expirationDate(expirationDate)
-                .numClicks(0L)
+                .createdAt(new Date())
                 .createdBy(currentUser.getId())
                 .build();
 
@@ -71,45 +76,45 @@ public class UrlService {
         return calendar.getTime();
     }
 
-    public Optional<UrlMappingDTO> handleRedirection(String shortCode) {
-        Optional<String> longUrl = getLongUrlFromShortCode(shortCode);
-        long numClicks = incrementClicks(shortCode);
-        return longUrl.map(url -> UrlMappingDTO
-                .builder()
-                .longUrl(url)
-                .shortUrl(baseUrl + "/" + shortCode)
-                .numClicks(numClicks)
-                .build());
-    }
-
-    private Optional<String> getLongUrlFromShortCode(String shortCode) {
+    public Optional<UrlMappingDTO> handleRedirection(String shortCode, HttpServletRequest request) {
         try {
             Optional<UrlMapping> optionalMapping = urlRepository.findByShortCode(shortCode);
-            return optionalMapping.map(UrlMapping::getLongUrl);
+            if (optionalMapping.isPresent()) {
+                UrlMapping urlMapping = optionalMapping.get();
+
+                eventPublisher.publishEvent(new UrlAccessedEvent(urlMapping, request));
+
+                return Optional.of(UrlMappingDTO
+                        .builder()
+                        .longUrl(urlMapping.getLongUrl())
+                        .shortUrl(baseUrl + "/" + shortCode)
+                        .createdAt(urlMapping.getCreatedAt())
+                        .build());
+            }
+            return Optional.empty();
         } catch (Exception e) {
-            throw new ShortCodeNotFoundException(e.getMessage());
+            throw new UrlMappingNotFoundException(e.getMessage());
         }
     }
 
-    @Transactional
-    public long incrementClicks(String shortCode) {
-        Optional<UrlMapping> optionalMapping = urlRepository.findByShortCode(shortCode);
-        UrlMapping urlMapping = optionalMapping.orElseThrow(() -> new ShortCodeNotFoundException("Short code not found: " + shortCode));
-        urlMapping.setNumClicks(urlMapping.getNumClicks() + 1L);
-        urlRepository.save(urlMapping);
-        return urlMapping.getNumClicks();
+    public void deleteUrlMapping(Long id) {
+        urlRepository.deleteById(id);
     }
 
     public UrlMapping generateQRCodeImage(String longUrl) {
         ByteArrayOutputStream stream = QRCode.from(longUrl).to(ImageType.PNG).stream();
         String base64QrCode = Base64.getEncoder().encodeToString(stream.toByteArray());
         Date expirationDate = getExpirationDate();
+        User currentUser = userService.getCurrentUser();
+
         UrlMapping urlMapping = UrlMapping.hiddenBuilder()
                 .longUrl(longUrl)
                 .qrCodeData(base64QrCode)
                 .expirationDate(expirationDate)
-                .numClicks(0L)
+                .createdBy(currentUser.getId())
+                .createdAt(new Date())
                 .build();
+
         return urlRepository.save(urlMapping);
     }
 
