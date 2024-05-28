@@ -1,11 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import Loader from '../components/Loader/Loader';
 
 const CustomRoute = ({ component: Component }) => {
-  const { user } = useAuth();
+  const { token, user, loading } = useAuth();
 
-  return user ? <Navigate to='/' /> : <Component />;
+  if (loading) return <Loader />;
+  if (user && user.active && token) return <Navigate to="/" />;
+  return <Component />;
 };
 
 export default CustomRoute;

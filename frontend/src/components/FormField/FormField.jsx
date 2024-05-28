@@ -1,9 +1,8 @@
 import React from 'react';
-
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 
-const FormField = ({ label, type, field, form, autocomplete }) => {
+const FormField = ({ label, type, field, form, autoComplete }) => {
   const { name } = field;
   const { touched, errors } = form;
   const errorText = touched[name] && errors[name];
@@ -19,7 +18,7 @@ const FormField = ({ label, type, field, form, autocomplete }) => {
         variant='outlined'
         fullWidth
         margin="normal"
-        autoComplete={autocomplete}
+        autoComplete={autoComplete}
       />
     </Box>
   );

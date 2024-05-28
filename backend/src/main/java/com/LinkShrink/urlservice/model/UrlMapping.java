@@ -25,7 +25,7 @@ public class UrlMapping {
     @NotBlank(message = "URL is required")
     private String longUrl;
 
-    @Size(max = 6, message = "shortCode can be at most 6 characters long")
+    @Size(min = 6, max = 6, message = "shortCode must be 6 characters long")
     private String shortCode;
 
     @Column(columnDefinition = "TEXT")
@@ -38,6 +38,8 @@ public class UrlMapping {
     private Long createdBy;
 
     private Date createdAt;
+
+    private String title;
 
     public static class UrlMappingBuilder {
         private String shortCode;
@@ -64,7 +66,7 @@ public class UrlMapping {
                 throw new IllegalArgumentException("Either shortCode or qrCodeData must be set");
             }
             return new UrlMapping(this.id, this.longUrl, this.shortCode, this.qrCodeData,
-                                  this.expirationDate, this.createdBy, this.createdAt);
+                                  this.expirationDate, this.createdBy, this.createdAt, this.title);
         }
     }
 }

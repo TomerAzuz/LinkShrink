@@ -8,15 +8,19 @@ import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
+import com.LinkShrink.urlservice.validator.ShortCodeValidator;
 import jakarta.servlet.http.HttpServletRequest;
-import net.glxn.qrgen.QRCode;
-import net.glxn.qrgen.image.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import net.glxn.qrgen.QRCode;
+import net.glxn.qrgen.image.ImageType;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -39,6 +43,10 @@ public class UrlService {
     @Autowired
     private CustomUrlValidator customUrlValidator;
 
+    @Autowired
+    private ShortCodeValidator shortCodeValidator;
+
+
     public UrlMapping createUrlMapping(String longUrl) {
         if (!isValidUrl(longUrl)) {
             throw new InvalidUrlException("Invalid URL format");
@@ -51,6 +59,8 @@ public class UrlService {
 
         User currentUser = userService.getCurrentUser();
 
+        String title = extractTitle(longUrl);
+
         UrlMapping urlMapping = UrlMapping
                 .hiddenBuilder()
                 .longUrl(longUrl)
@@ -58,6 +68,7 @@ public class UrlService {
                 .expirationDate(expirationDate)
                 .createdAt(new Date())
                 .createdBy(currentUser.getId())
+                .title(title)
                 .build();
 
         return urlRepository.save(urlMapping);
@@ -76,8 +87,21 @@ public class UrlService {
         return calendar.getTime();
     }
 
+    private String extractTitle(String url) {
+        try {
+            Document doc = Jsoup.connect(url).get();
+            return doc.title();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public Optional<UrlMappingDTO> handleRedirection(String shortCode, HttpServletRequest request) {
         try {
+            if (!ShortCodeValidator.isValidShortCode(shortCode)) {
+                return Optional.empty();
+            }
+
             Optional<UrlMapping> optionalMapping = urlRepository.findByShortCode(shortCode);
             if (optionalMapping.isPresent()) {
                 UrlMapping urlMapping = optionalMapping.get();
@@ -104,6 +128,8 @@ public class UrlService {
     public UrlMapping generateQRCodeImage(String longUrl) {
         ByteArrayOutputStream stream = QRCode.from(longUrl).to(ImageType.PNG).stream();
         String base64QrCode = Base64.getEncoder().encodeToString(stream.toByteArray());
+
+        String title = extractTitle(longUrl);
         Date expirationDate = getExpirationDate();
         User currentUser = userService.getCurrentUser();
 
@@ -113,6 +139,7 @@ public class UrlService {
                 .expirationDate(expirationDate)
                 .createdBy(currentUser.getId())
                 .createdAt(new Date())
+                .title(title)
                 .build();
 
         return urlRepository.save(urlMapping);

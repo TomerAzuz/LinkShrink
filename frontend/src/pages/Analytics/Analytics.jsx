@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import ChartComponent from '../../components/ChartComponent/ChartComponent';
-import RequestService from '../../services/RequestService';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Select from '@mui/material/Select';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
+import React, { useEffect, useState } from "react";
+import ChartComponent from "../../components/ChartComponent/ChartComponent";
+import RequestService from "../../services/RequestService";
+import Container from "@mui/material/Container";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Select from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 
-import Loader from '../../components/Loader/Loader';
+import Loader from "../../components/Loader/Loader";
 
-const AnalyticsPage = () => {
-  const [metric, setMetric] = useState('country');
+const Analytics = () => {
+  const [metric, setMetric] = useState("country");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const getAnalyticsData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await RequestService.get('/analytics', true);
+        const response = await RequestService.get("/analytics", true);
         setData(response.data);
       } catch (error) {
         setError(error);
@@ -49,11 +49,11 @@ const AnalyticsPage = () => {
   return (
     <Container>
       <Box component="section" p={2} mt={4}>
-        <Typography variant='h2' align='center'>
+        <Typography variant="h2" align="center">
           Analytics
         </Typography>
         <Box component="section" mt={2}>
-          <Typography variant='h6' gutterBottom>
+          <Typography variant="h6" gutterBottom>
             Total clicks: {data.length}
           </Typography>
         </Box>
@@ -80,4 +80,4 @@ const AnalyticsPage = () => {
   );
 };
 
-export default AnalyticsPage;
+export default Analytics;

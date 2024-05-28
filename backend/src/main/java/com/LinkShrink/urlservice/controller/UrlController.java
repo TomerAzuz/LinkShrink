@@ -5,7 +5,6 @@ import com.LinkShrink.urlservice.dto.UrlRequest;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.service.UrlService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/url")
@@ -40,19 +38,23 @@ public class UrlController {
     public ResponseEntity<UrlMappingDTO> shortenUrl(@Valid @RequestBody UrlRequest request) {
         String longUrl = request.getLongUrl();
         log.info("Shortening URL: {}", longUrl);
+
         UrlMapping savedMapping = urlService.createUrlMapping(longUrl);
         UrlMappingDTO dto = new UrlMappingDTO(
-                                              savedMapping.getId(),
-                                              savedMapping.getLongUrl(),
-                                              baseUrl + "/" + savedMapping.getShortCode(),
-                                              null,
-                                              new Date());
+                savedMapping.getId(),
+                savedMapping.getLongUrl(),
+                baseUrl + "/" + savedMapping.getShortCode(),
+                null,
+                new Date(),
+                savedMapping.getTitle());
+
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     @GetMapping("/my-links")
     public ResponseEntity<List<UrlMappingDTO>> getUrlMappings() {
         log.info("Getting all url mappings");
+
         List<UrlMapping> urlMappings = urlService.getAllUrlMappings();
         List<UrlMappingDTO> urlMappingDTOS = urlMappings
                 .stream()
@@ -61,15 +63,11 @@ public class UrlController {
                         url.getLongUrl(),
                         baseUrl + "/" + url.getShortCode(),
                         url.getQrCodeData(),
-                        url.getCreatedAt())).toList();
-        return ResponseEntity.ok(urlMappingDTOS);
-    }
+                        url.getCreatedAt(),
+                        url.getTitle()))
+                .toList();
 
-    @GetMapping("{shortCode}")
-    public ResponseEntity<UrlMappingDTO> redirectUrl(@PathVariable("shortCode") String shortCode, HttpServletRequest request) {
-        log.info("Redirect from short code: {}", shortCode);
-        Optional<UrlMappingDTO> urlMappingDTO = urlService.handleRedirection(shortCode, request);
-        return urlMappingDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(urlMappingDTOS);
     }
 
     @PostMapping("/qr")
@@ -81,11 +79,12 @@ public class UrlController {
         UrlMapping savedMapping = urlService.generateQRCodeImage(longUrl);
 
         UrlMappingDTO dto = new UrlMappingDTO(
-                                              savedMapping.getId(),
-                                              savedMapping.getLongUrl(),
-                                              null,
-                                              savedMapping.getQrCodeData(),
-                                              savedMapping.getCreatedAt());
+                savedMapping.getId(),
+                savedMapping.getLongUrl(),
+                null,
+                savedMapping.getQrCodeData(),
+                savedMapping.getCreatedAt(),
+                savedMapping.getTitle());
 
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }

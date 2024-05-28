@@ -1,6 +1,7 @@
 package com.LinkShrink.urlservice.controller;
 
 import com.LinkShrink.urlservice.dto.AuthResponse;
+import com.LinkShrink.urlservice.dto.UserResponse;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -23,21 +24,31 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<AuthResponse> authenticatedUser() {
         User currentUser = userService.getCurrentUser();
+        UserResponse userResponse = new UserResponse(
+                currentUser.getFullName(),
+                currentUser.getEmail(),
+                currentUser.isActive());
+
         AuthResponse authResponse = AuthResponse.builder()
-                                    .email(currentUser.getEmail())
-                                    .fullName(currentUser.getFullName())
-                                    .build();
+                .user(userResponse)
+                .build();
+
         return ResponseEntity.ok(authResponse);
     }
 
     @GetMapping
     public ResponseEntity<List<AuthResponse>> allUsers() {
         List<User> users = userService.allUsers();
-        List<AuthResponse> userList = users.
-                stream()
+        List<AuthResponse> userList = users
+                .stream()
                 .map(user -> AuthResponse.builder()
-                                        .fullName(user.getFullName())
-                                        .email(user.getEmail()).build()).toList();
+                        .user(new UserResponse(
+                                user.getFullName(),
+                                user.getEmail(),
+                                user.isActive()))
+                        .build())
+                .toList();
+
         return ResponseEntity.ok(userList);
     }
 }

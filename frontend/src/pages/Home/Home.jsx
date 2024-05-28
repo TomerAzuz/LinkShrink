@@ -1,27 +1,27 @@
 import React from 'react';
-import { Container } from "@mui/material";
+import Container from "@mui/material/Container";
 
-import Navbar from '../../components/Navbar/Navbar';
-import TextSection from './TextSection/TextSection';
 import UrlInput from "./UrlInput/UrlInput";
+import TextSection from "./TextSection/TextSection";
 
-const Home = () => (
-  <>
-    <Container 
-      maxWidth="xl" 
+const Home = () => {
+  return (
+    <Container
+      maxWidth="2xl" 
       sx={{ 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 4,
+        padding: 8,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
       }}
     >
-      <TextSection />
+      <TextSection/>
       <UrlInput />
     </Container>
-  </>
-);
-
+  );
+};
 
 export default Home;

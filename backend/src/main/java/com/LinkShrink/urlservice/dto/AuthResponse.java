@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String token;
     private long expiresIn;
-    private String fullName;
-    private String email;
+    private UserResponse user;
 }

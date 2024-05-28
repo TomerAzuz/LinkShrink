@@ -4,6 +4,9 @@ import com.LinkShrink.urlservice.model.UrlAnalytics;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.AnalyticsRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +46,8 @@ public class AnalyticsService {
         String ipAddress = request.getRemoteAddr();
         String country = getCountryFromIp(ipAddress);
         analytics.setCountry(country);
+        System.out.println("Country: " + country);
+
 
         String browser = getBrowser(userAgent);
         analytics.setBrowser(browser);
@@ -61,7 +66,6 @@ public class AnalyticsService {
     public List<UrlAnalytics> getAllAnalytics() {
         User user = userService.getCurrentUser();
         return analyticsRepository.findAllByUrlMapping_CreatedBy(user.getId());
-        //return aggregateByUrlId(allAnalytics);
     }
 
 //    private Map<Long, List<UrlAnalytics>> aggregateByUrlId(List<List<UrlAnalytics>> allAnalytics) {
@@ -81,17 +85,20 @@ public class AnalyticsService {
         ResponseEntity<String> response = restTemplate.getForEntity(API_URL + "?fields=country&query=" + ip, String.class);
         if (response.getStatusCode().is2xxSuccessful()) {
             String responseBody = response.getBody();
-            if (responseBody == null)
-                return "Unknown";
-            int startIndex = responseBody.indexOf("\"country\":\"");
-            if (startIndex != -1) {
-                int endIndex = responseBody.indexOf('"', startIndex + "\"country\":\"".length());
-                if (endIndex != -1) {
-                    return responseBody.substring(startIndex + "\"country\":\"".length(), endIndex);
-                }
-            }
+            return responseBody != null ?
+                    extractCountryFromJson(responseBody) : "Unknown";
         }
         return "Unknown";
+    }
+
+    private String extractCountryFromJson(String json) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(json);
+            return rootNode.get("country").asText();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getBrowser(String userAgent) {

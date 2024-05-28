@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 import { URL_MYLINKS } from '../../constants/urlConstants';
 import RequestService from '../../services/RequestService';
@@ -18,8 +19,8 @@ const MyLinks = () => {
   const [error, setError] = useState(null);
 
   const deleteLink = async (id) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await RequestService.delete(`/url/${id}`);
       if (response.status === 204) {
         const filteredLinks = links.filter(link => link.id !== id);
@@ -63,27 +64,46 @@ const MyLinks = () => {
     return (
       <Box display="flex" justifyContent="center" flexDirection="column" alignItems="center" mt={8}>
         <Typography variant="h3" gutterBottom>No Links yet</Typography>
-        <Typography variant="subtitle1">Go to homepage and generate your shortened link or QR code</Typography>
+        <Typography variant="subtitle1">
+          Go to homepage and generate your shortened link or QR code
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Container maxWidth='md'>
-      <Typography variant='h2' align='center' mt={12} gutterBottom>
-        My Links
-      </Typography>
+      <Box textAlign="center" m={4}>
+      <Typography 
+        variant='h2' 
+        align='center' 
+        m={6}
+        color='#333'
+        fontWeight='bold'
+        textTransform='uppercase'
+        letterSpacing='2px'
+        sx={{ userSelect: 'none' }}
+        >
+          My Links
+        </Typography>
+        <Button 
+          variant="outlined"
+          startIcon={<BarChartIcon />}
+          sx={{ color: 'black', border: '1px solid black' }}
+          onClick={() => navigate('/analytics')}
+        >
+          View Analytics 
+        </Button>
+      </Box>
       <Grid container spacing={2}>
-        {links.map((link) => (
-          <LinkDetailsItem key={link.id} link={link} deleteLink={deleteLink}/>
+        {links.slice().reverse().map((link) => (
+          <LinkDetailsItem 
+            key={link.id} 
+            link={link} 
+            deleteLink={deleteLink}
+          />
         ))}
       </Grid>
-      <Button 
-        sx={{ color: 'black' }}
-        onClick={() => navigate('/analytics')}
-      >
-        Analytics
-      </Button>
     </Container>
   );
 };

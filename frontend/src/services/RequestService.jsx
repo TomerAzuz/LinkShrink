@@ -1,13 +1,12 @@
-import React from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../constants/urlConstants';
 
 class RequestService {
-  get = (url, isAuthRequired) => {
+  get = (url, isAuthRequired = false) => {
     return createRequest("GET", url, null, isAuthRequired);
   };
 
-  post = (url, body, isAuthRequired) => {
+  post = (url, body, isAuthRequired = false) => {
     return createRequest("POST", url, body, isAuthRequired);
   };
 

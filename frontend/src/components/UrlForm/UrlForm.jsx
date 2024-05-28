@@ -37,9 +37,9 @@ const UrlForm = ({ handleSubmit, buttonLabel, endpoint }) => (
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
           <Button
             type="submit"
-            variant="contained"
-            color="primary"
+            variant="outlined"
             disabled={isSubmitting}
+            sx={{ color: 'black', border: '1px solid black' }}
           >
             {buttonLabel}
           </Button>
