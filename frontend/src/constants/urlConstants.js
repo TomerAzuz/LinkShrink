@@ -15,5 +15,6 @@ export const USERS_ALL = "/users";
 
 /* URL service */
 export const URL_SHORTEN = "/url/shorten";
-export const URL_QRCODE = "/url/qr";
-export const URL_MYLINKS = "/url/my-links";
+export const URL_MYLINKS = "/url/mylinks";
+export const URL_UNSHORTEN = "/url/unshorten";
+export const URL_REPORT = "/url/report";

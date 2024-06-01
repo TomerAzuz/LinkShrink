@@ -1,15 +1,27 @@
 package com.LinkShrink.urlservice.service;
 
-import com.LinkShrink.urlservice.constants.templates.EmailTemplates;
+import com.LinkShrink.urlservice.constants.EmailTemplates;
+import com.LinkShrink.urlservice.dto.AuthResponse;
 import com.LinkShrink.urlservice.dto.RegistrationRequest;
 import com.LinkShrink.urlservice.dto.LoginRequest;
+import com.LinkShrink.urlservice.dto.UserResponse;
 import com.LinkShrink.urlservice.enums.Role;
+import com.LinkShrink.urlservice.exception.AuthExceptions.EmailExistsException;
+import com.LinkShrink.urlservice.exception.AuthExceptions.InvalidCodeException;
+import com.LinkShrink.urlservice.exception.AuthExceptions.PasswordConfirmationException;
+import com.LinkShrink.urlservice.mapper.UserMapper;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,70 +32,101 @@ import java.util.UUID;
 
 @Service
 public class AuthenticationService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
+    @Autowired
+    private JwtService jwtService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserMapper userMapper;
 
     @Transactional
-    public User signup(RegistrationRequest request) throws MessagingException {
+    public UserResponse signup(RegistrationRequest request) throws MessagingException {
         String pwd = request.getPassword();
         String pwd2 = request.getConfirmPassword();
 
         if (!passwordsMatch(pwd, pwd2)) {
-            throw new IllegalArgumentException("Invalid password");
+            throw new PasswordConfirmationException("Passwords do not match");
         }
 
-        User user = new User();
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRoles(Collections.singleton(Role.USER));
-        user.setResetCodeVerified(false);
-        user.setActive(false);
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new EmailExistsException("Email already exists");
+        }
+
         String activationCode = UUID.randomUUID().toString();
-        user.setActivationCode(activationCode);
+
+        User user = User.builder()
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(Collections.singleton(Role.USER))
+                .resetCodeVerified(false)
+                .isActive(false)
+                .activationCode(activationCode)
+                .build();
 
         userRepository.save(user);
 
-        String emailContent = String.format(EmailTemplates.ACCOUNT_ACTIVATION_TEMPLATE, user.getFullName(), activationCode);
-        emailService.sendSimpleMessage(request.getEmail(), "LinkShrink - Activation Code", emailContent);
-        return user;
+        // Send activation code
+        String emailContent = String.format(
+                EmailTemplates.ACCOUNT_ACTIVATION_TEMPLATE,
+                user.getFullName(),
+                activationCode
+        );
+        emailService.sendSimpleMessage(
+                request.getEmail(),
+                "LinkShrink - Activation Code",
+                emailContent);
+
+        return userMapper.userToUserResponse(user);
     }
 
-    public User authenticate(LoginRequest userDto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        userDto.getEmail(),
-                        userDto.getPassword()
-                )
-        );
+    public AuthResponse authenticate(LoginRequest userDto) {
+        try {
 
-         User user = userRepository.findByEmail(userDto.getEmail())
-                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            userDto.getEmail(),
+                            userDto.getPassword()));
 
-         if (!user.isActive()) {
-             throw new UsernameNotFoundException("Activation required");
-         }
-         return user;
+            User user = userRepository.findByEmail(userDto.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            if (!user.isActive()) {
+                throw new UsernameNotFoundException("Activation required");
+            }
+
+            Claims claims = Jwts.claims().setSubject(user.getUsername());
+            claims.put("role", Role.USER);
+
+            String jwtToken = jwtService.generateToken(claims, user);
+            UserResponse userResponse = userMapper.userToUserResponse(user);
+
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .expiresIn(jwtService.getExpirationTime())
+                    .user(userResponse)
+                    .build();
+        } catch (AuthenticationException e) {
+            throw new BadCredentialsException("Invalid credentials");
+        }
     }
 
     @Transactional
-    public User activateUser(String code) {
+    public UserResponse activateUser(String code) {
         User user = userRepository.findByActivationCode(code)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         user.setActivationCode(null);
         user.setActive(true);
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        return userMapper.userToUserResponse(user);
     }
 
     @Transactional
@@ -95,14 +138,18 @@ public class AuthenticationService {
         user.setResetCode(resetCode);
         userRepository.save(user);
 
-        String emailContent = String.format(EmailTemplates.PASSWORD_RESET_TEMPLATE, user.getFullName(), resetCode);
+        String emailContent = String.format(
+                EmailTemplates.PASSWORD_RESET_TEMPLATE,
+                user.getFullName(),
+                resetCode);
+
         emailService.sendSimpleMessage(email, "LinkShrink - Password Reset", emailContent);
     }
 
     @Transactional
     public void getEmailByResetCode(String code) {
         User user = userRepository.findByResetCode(code)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid reset code"));
+                .orElseThrow(() -> new InvalidCodeException("Invalid reset code"));
 
         user.setResetCodeVerified(true);
         userRepository.save(user);
@@ -113,16 +160,18 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public void resetPassword(String email, String password, String password2) throws Exception {
+    public void resetPassword(String email, String password, String password2) {
         if (!passwordsMatch(password, password2)) {
-            throw new Exception("Passwords do not match");
+            throw new PasswordConfirmationException("Passwords do not match");
         }
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if (!user.isResetCodeVerified()) {
-            throw new Exception("Reset code not verified");
+            throw new InvalidCodeException("Reset code not verified");
         }
+
         user.setPassword(passwordEncoder.encode(password));
         user.setResetCode(null);
         user.setResetCodeVerified(false);

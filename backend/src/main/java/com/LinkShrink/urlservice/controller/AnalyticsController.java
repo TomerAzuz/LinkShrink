@@ -1,36 +1,31 @@
 package com.LinkShrink.urlservice.controller;
 
-import com.LinkShrink.urlservice.exception.UrlMappingNotFoundException;
 import com.LinkShrink.urlservice.model.UrlAnalytics;
 import com.LinkShrink.urlservice.service.AnalyticsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.LinkShrink.urlservice.constants.UrlPaths.API_V1_ANALYTICS;
+
 @RestController
-@RequestMapping("api/v1/analytics")
+@RequestMapping(API_V1_ANALYTICS)
 public class AnalyticsController {
 
     @Autowired
     private AnalyticsService analyticsService;
 
     @GetMapping("{id}")
-    public ResponseEntity<List<UrlAnalytics>> getAnalyticsById(@PathVariable("id") Long id) {
-        List<UrlAnalytics> urlAnalytics = analyticsService.getAnalyticsById(id);
-        if (urlAnalytics == null) {
-            throw new UrlMappingNotFoundException("Analytics not found for id: " + id);
-        }
-        return ResponseEntity.ok(urlAnalytics);
+    @ResponseStatus(HttpStatus.OK)
+    public List<UrlAnalytics> getAnalyticsByUrlId(@PathVariable("urlId") Long urlId) {
+        return analyticsService.viewAnalyticsByUrlId(urlId);
     }
 
     @GetMapping
-    public ResponseEntity<List<UrlAnalytics>> getAllAnalytics() {
-        List<UrlAnalytics> allAnalytics = analyticsService.getAllAnalytics();
-        return ResponseEntity.ok(allAnalytics);
+    @ResponseStatus(HttpStatus.OK)
+    public List<UrlAnalytics> getAllAnalytics() {
+        return analyticsService.viewAllAnalytics();
     }
 }

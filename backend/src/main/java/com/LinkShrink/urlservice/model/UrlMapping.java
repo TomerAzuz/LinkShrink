@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
-@Builder(builderMethodName = "hiddenBuilder")
+@Builder
 @Entity
 @Table(name = "url_mapping", indexes = {
        @Index(columnList = "shortCode", name = "short_code_index")
@@ -25,7 +25,7 @@ public class UrlMapping {
     @NotBlank(message = "URL is required")
     private String longUrl;
 
-    @Size(min = 6, max = 6, message = "shortCode must be 6 characters long")
+    @Size(min = 6, max = 6, message = "short code must be 6 characters long")
     private String shortCode;
 
     @Column(columnDefinition = "TEXT")
@@ -41,32 +41,22 @@ public class UrlMapping {
 
     private String title;
 
-    public static class UrlMappingBuilder {
-        private String shortCode;
-        private String qrCodeData;
-
-        public UrlMappingBuilder shortCode(String shortCode) {
-            if (this.qrCodeData != null) {
-                throw new IllegalArgumentException("Cannot set both short code and qr code");
-            }
-            this.shortCode = shortCode;
-            return this;
-        }
-
-        public UrlMappingBuilder qrCodeData(String qrCodeData) {
-            if (this.shortCode != null) {
-                throw new IllegalArgumentException("Cannot set both short code and qr code");
-            }
-            this.qrCodeData = qrCodeData;
-            return this;
-        }
-
-        public UrlMapping build() {
-            if (this.shortCode == null && this.qrCodeData == null) {
-                throw new IllegalArgumentException("Either shortCode or qrCodeData must be set");
-            }
-            return new UrlMapping(this.id, this.longUrl, this.shortCode, this.qrCodeData,
-                                  this.expirationDate, this.createdBy, this.createdAt, this.title);
-        }
+    public static UrlMapping create(
+            String longUrl,
+            String shortCode,
+            String qrCodeData,
+            Date expirationDate,
+            Long createdBy,
+            String title)
+    {
+        return UrlMapping.builder()
+                .longUrl(longUrl)
+                .shortCode(shortCode)
+                .qrCodeData(qrCodeData)
+                .expirationDate(expirationDate)
+                .createdAt(new Date())
+                .createdBy(createdBy)
+                .title(title)
+                .build();
     }
 }

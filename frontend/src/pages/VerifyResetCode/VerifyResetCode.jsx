@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -21,32 +22,33 @@ const VerifyResetCode = () => {
   const navigate = useNavigate();
   const { verifyResetCode, loading } = useAuth();
 
-  const handleVerifyResetCode = async (values, setStatus, resetForm) => {
+  const handleVerifyResetCode = async (values, resetForm) => {
     try {
-      setStatus(null);
-      const response = await verifyResetCode(values.resetCode, setStatus);
+      const response = await verifyResetCode(values.resetCode);
       if (response) {
+        toast.success("Reset code verified");
         navigate("/reset-password");
       }
       resetForm();
     } catch (error) {
-      setStatus(error.message);
+      console.log(error)
+      toast.error(error.response?.data?.message || "Unexpected error");
     }
   };
 
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
-        <Typography variant="h4" align="center" gutterBottom fontWeight="bold">
+        <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
           Verify password reset code
         </Typography>
         <Formik
           initialValues={{ resetCode: "" }}
           validationSchema={ResetCodeSchema}
-          onSubmit={async (values, { setStatus, resetForm }) => 
-            await handleVerifyResetCode(values, setStatus, resetForm)}
+          onSubmit={async (values, { resetForm }) => 
+            await handleVerifyResetCode(values, resetForm)}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting }) => (
             <Form>
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={12}>
@@ -58,11 +60,8 @@ const VerifyResetCode = () => {
                     component={FormField}
                   />
                 </Grid>
-                <Grid item xs={12}>
-                  {status && <Typography color="error">{status}</Typography>}
-                </Grid>
                 {loading && <Loader />}
-                <Grid item xs={12}>
+                <Grid item xs={12} container direction="column" alignItems="center">
                   <Button
                     type="submit"
                     variant="contained"

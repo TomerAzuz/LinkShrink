@@ -4,6 +4,7 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import ClearIcon from "@mui/icons-material/Clear";
 
@@ -14,6 +15,7 @@ import CustomDialog from '../../components/CustomDialog/CustomDialog';
 const LinkDetailsItem = ({ link, deleteLink }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isQrCodeEnlarged, setIsQrCodeEnlarged] = useState(false);
+  const [viewQrCode, setViewQrCode] = useState(false);
   const { id, longUrl, shortUrl, qrCodeData, createdAt, title } = link;
 
   const favicon = `https://www.google.com/s2/favicons?domain=${longUrl}&sz=128`;
@@ -76,7 +78,7 @@ const LinkDetailsItem = ({ link, deleteLink }) => {
             </Typography>
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          {qrCodeData ? (
+          {viewQrCode ? (
             <Box display="flex" justifyContent="center" position="relative">
             <Tooltip 
               title={isQrCodeEnlarged ? "Click to shrink" : "Click to enlarge"}>
@@ -126,6 +128,7 @@ const LinkDetailsItem = ({ link, deleteLink }) => {
             </IconButton>
           </Tooltip>
         </Grid>
+        <Button>View QR Code</Button>
       </Grid>
       <CustomDialog 
         isOpen={isDialogOpen}

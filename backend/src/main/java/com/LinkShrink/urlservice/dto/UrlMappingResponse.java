@@ -14,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UrlMappingDTO {
+public class UrlMappingResponse {
     @NotNull
     private Long id;
 
@@ -22,9 +22,11 @@ public class UrlMappingDTO {
     private String longUrl;
 
     @Size(min = 6, max = 6, message = "shortCode must be 6 characters long")
+    @NotBlank(message = "Short URL is required")
     private String shortUrl;
 
-    private String QrCodeData;
+    @NotBlank(message = "QR code is required")
+    private String qrCodeData;
 
     private Date createdAt;
 

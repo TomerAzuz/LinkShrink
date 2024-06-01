@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -29,16 +30,16 @@ const ResetPassword = () => {
   const { resetPassword, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleResetPassword = async (values, { setStatus, resetForm }) => {
+  const handleResetPassword = async (values, { resetForm }) => {
     try {
-      setStatus(null);
-      const response = await resetPassword(values, setStatus);
+      const response = await resetPassword(values);
       if (response) {
         navigate("/login");
+        toast.success("Password was reset successfully");
       }
       resetForm();
     } catch (error) {
-      setStatus(error.message);
+      toast.error(error.response?.data?.message || "Unexpected error");
     }
   };
 
@@ -53,7 +54,7 @@ const ResetPassword = () => {
           validationSchema={ResetPasswordSchema}
           onSubmit={async (values, actions) => await handleResetPassword(values, actions)}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting }) => (
             <Form>
               <Grid container justifyContent="center">
                 <Grid item xs={12}>
@@ -82,9 +83,6 @@ const ResetPassword = () => {
                     autoComplete="new-password" 
                     component={FormField} 
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  {status && <Typography color="error">Error: Password reset failed</Typography>}
                 </Grid>
                 <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
                   <Grid item>

@@ -1,14 +1,19 @@
 package com.LinkShrink.urlservice.service;
 
-import com.LinkShrink.urlservice.dto.UrlMappingDTO;
+import com.LinkShrink.urlservice.constants.EmailTemplates;
+import com.LinkShrink.urlservice.dto.UrlDto;
+import com.LinkShrink.urlservice.dto.UrlMappingResponse;
+import com.LinkShrink.urlservice.dto.UserResponse;
 import com.LinkShrink.urlservice.event.UrlAccessedEvent;
-import com.LinkShrink.urlservice.exception.InvalidUrlException;
-import com.LinkShrink.urlservice.exception.UrlMappingNotFoundException;
+import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidShortCodeException;
+import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidUrlException;
+import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundException;
+import com.LinkShrink.urlservice.mapper.UrlMapper;
 import com.LinkShrink.urlservice.model.UrlMapping;
-import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
 import com.LinkShrink.urlservice.validator.ShortCodeValidator;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,58 +30,112 @@ import java.util.*;
 
 @Service
 public class UrlService {
-
-    private static final int ID_LENGTH = 6;
-
+    private static final int SHORTCODE_LENGTH = 6;
     @Value("${server.url}")
     private String baseUrl;
-
+    @Value("${spring.mail.username}")
+    private String emailAddress;
     @Autowired
     private UrlRepository urlRepository;
-
+    @Autowired
+    private UrlMapper urlMapper;
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
-
     @Autowired
     private CustomUrlValidator customUrlValidator;
-
     @Autowired
     private ShortCodeValidator shortCodeValidator;
 
-
-    public UrlMapping createUrlMapping(String longUrl) {
+    public UrlMappingResponse createUrlMapping(String longUrl) {
         if (!isValidUrl(longUrl)) {
             throw new InvalidUrlException("Invalid URL format");
         }
-        String shortCode = generateShortCode();
-        while (shortCodeExists(shortCode)) {
-            shortCode = generateShortCode();
-        }
-        Date expirationDate = getExpirationDate();
 
-        User currentUser = userService.getCurrentUser();
+        UrlMapping urlMapping = constructUrlMapping(longUrl);
+        urlRepository.save(urlMapping);
 
-        String title = extractTitle(longUrl);
-
-        UrlMapping urlMapping = UrlMapping
-                .hiddenBuilder()
-                .longUrl(longUrl)
-                .shortCode(shortCode)
-                .expirationDate(expirationDate)
-                .createdAt(new Date())
-                .createdBy(currentUser.getId())
-                .title(title)
-                .build();
-
-        return urlRepository.save(urlMapping);
+        return urlMapper.urlMappingToUrlMappingResponse(urlMapping);
     }
 
-    public List<UrlMapping> getAllUrlMappings() {
-        User user = userService.getCurrentUser();
-        return urlRepository.findAllByCreatedBy(user.getId());
+    public List<UrlMappingResponse> viewAllUrlMappings() {
+        UserResponse user = userService.getCurrentUser();
+        List<UrlMapping> urlMappingList = urlRepository.findAllByCreatedBy(user.getId());
+
+        return urlMappingList
+                .stream()
+                .map(url -> urlMapper.urlMappingToUrlMappingResponse(url))
+                .toList();
+    }
+
+    public UrlMappingResponse redirect(String shortCode, HttpServletRequest request) {
+        if (!shortCodeValidator.isValidShortCode(shortCode) ||
+                !urlRepository.existsByShortCode(shortCode)) {
+            throw new InvalidShortCodeException("Invalid short code");
+        }
+
+        UrlMapping urlMapping = urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlMappingNotFoundException("URL not found"));
+
+            eventPublisher.publishEvent(new UrlAccessedEvent(urlMapping, request));
+            return urlMapper.urlMappingToUrlMappingResponse(urlMapping);
+    }
+
+    public void deleteUrlMapping(Long id) {
+        urlRepository.deleteById(id);
+    }
+
+    public String generateQRCodeImage(String longUrl) {
+
+        String shortCode = generateShortCode();
+        String shortUrl = baseUrl + "/" + shortCode;
+
+        // Generate base64 QR code string
+        ByteArrayOutputStream stream = QRCode.from(shortUrl).to(ImageType.PNG).stream();
+        return Base64.getEncoder().encodeToString(stream.toByteArray());
+
+    }
+
+    public void handleMaliciousUrl(String url) throws MessagingException {
+        if (!urlRepository.existsByLongUrl(url)) {
+            throw new UrlMappingNotFoundException("URL not found");
+        }
+        UserResponse user = userService.getCurrentUser();
+
+        String emailContent = String.format(
+                EmailTemplates.MALICIOUS_URL_REPORT_TEMPLATE,
+                user.getEmail(),
+                url);
+        emailService.sendSimpleMessage(emailAddress, "Malicious URL reported", emailContent);
+    }
+
+    public UrlDto unshortenUrl(String url) {
+        String shortCode = extractShortCodeFromUrl(url);
+        Optional<UrlMapping> optionalMapping = Optional.of(
+                urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlMappingNotFoundException("URL not found")));
+
+        UrlMapping urlMapping = optionalMapping.get();
+
+        return new UrlDto(urlMapping.getLongUrl());
+    }
+
+    private boolean isValidUrl(String url) {
+        return customUrlValidator.isValid(url);
+    }
+
+    private UrlMapping constructUrlMapping(String longUrl) {
+        String shortCode = generateShortCode();
+        String qrCodeData = generateQRCodeImage(longUrl);
+        Date expirationDate = getExpirationDate();
+        Long createdBy = userService.getCurrentUser().getId();
+        String title = extractTitle(longUrl);
+
+        return UrlMapping.create(
+                longUrl, shortCode, qrCodeData, expirationDate, createdBy, title);
     }
 
     private Date getExpirationDate() {
@@ -84,6 +143,7 @@ public class UrlService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(currentDate);
         calendar.add(Calendar.DATE, 30);
+
         return calendar.getTime();
     }
 
@@ -92,69 +152,17 @@ public class UrlService {
             Document doc = Jsoup.connect(url).get();
             return doc.title();
         } catch (IOException e) {
-            return null;
+            return "No title";
         }
-    }
-
-    public Optional<UrlMappingDTO> handleRedirection(String shortCode, HttpServletRequest request) {
-        try {
-            if (!ShortCodeValidator.isValidShortCode(shortCode)) {
-                return Optional.empty();
-            }
-
-            Optional<UrlMapping> optionalMapping = urlRepository.findByShortCode(shortCode);
-            if (optionalMapping.isPresent()) {
-                UrlMapping urlMapping = optionalMapping.get();
-
-                eventPublisher.publishEvent(new UrlAccessedEvent(urlMapping, request));
-
-                return Optional.of(UrlMappingDTO
-                        .builder()
-                        .longUrl(urlMapping.getLongUrl())
-                        .shortUrl(baseUrl + "/" + shortCode)
-                        .createdAt(urlMapping.getCreatedAt())
-                        .build());
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            throw new UrlMappingNotFoundException(e.getMessage());
-        }
-    }
-
-    public void deleteUrlMapping(Long id) {
-        urlRepository.deleteById(id);
-    }
-
-    public UrlMapping generateQRCodeImage(String longUrl) {
-        ByteArrayOutputStream stream = QRCode.from(longUrl).to(ImageType.PNG).stream();
-        String base64QrCode = Base64.getEncoder().encodeToString(stream.toByteArray());
-
-        String title = extractTitle(longUrl);
-        Date expirationDate = getExpirationDate();
-        User currentUser = userService.getCurrentUser();
-
-        UrlMapping urlMapping = UrlMapping.hiddenBuilder()
-                .longUrl(longUrl)
-                .qrCodeData(base64QrCode)
-                .expirationDate(expirationDate)
-                .createdBy(currentUser.getId())
-                .createdAt(new Date())
-                .title(title)
-                .build();
-
-        return urlRepository.save(urlMapping);
-    }
-
-    private boolean isValidUrl(String url) {
-        return customUrlValidator.isValid(url);
     }
 
     private String generateShortCode() {
         String uuid = UUID.randomUUID().toString().replace("-", "");
-        return uuid.substring(0, ID_LENGTH);
+
+        return uuid.substring(0, SHORTCODE_LENGTH);
     }
 
-    private boolean shortCodeExists(String shortCode) {
-        return urlRepository.existsByShortCode(shortCode);
+    private String extractShortCodeFromUrl(String url) {
+        return url.substring(url.lastIndexOf("/") + 1);
     }
 }

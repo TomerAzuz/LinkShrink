@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface UrlRepository extends JpaRepository<UrlMapping, Long> {
     boolean existsByShortCode(String shortCode);
+    boolean existsByLongUrl(String longUrl);
     Optional<UrlMapping> findByShortCode(String shortCode);
     List<UrlMapping> findAllByCreatedBy(Long createdBy);
 }

@@ -3,15 +3,15 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useTheme } from '@mui/material/styles';
 
-const Logo = () => {
+const Logo = ({size, isRedirect = false}) => {
   const theme = useTheme();
-  
+
   return (
-    <Box minWidth="150px">
+    <Box>
       <Typography 
         variant="h1"
         sx={{ 
-          fontSize: "3rem",
+          fontSize: size.md,
           fontWeight: "bold",
           color: "#fff",
           background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
@@ -19,10 +19,12 @@ const Logo = () => {
           WebkitTextFillColor: "transparent",
           userSelect: 'none',
           padding: '10px',
-          cursor: 'pointer',
+          '@media (max-width: 768px)': {
+            fontSize: size.xs,
+          }
         }}
       >
-        <Link to="/">LinkShrink</Link>
+        {isRedirect ? <Link to="/">LinkShrink</Link> : "LinkShrink"}
       </Typography>
     </Box>
   );

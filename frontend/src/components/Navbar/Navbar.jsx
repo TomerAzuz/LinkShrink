@@ -21,7 +21,7 @@ const Navbar = () => {
       <Toolbar>
         <Grid container justifyContent="space-between" alignItems="center">
           <Grid item xs={12} sm={3}>
-            <Logo />
+          <Logo size={{ xs: "2rem", md: "3rem" }} isRedirect={true} />
           </Grid>
           <Grid item xs={12} sm={9}>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "14px" }}>
@@ -34,7 +34,7 @@ const Navbar = () => {
               <Divider orientation="vertical" flexItem />
               {user ? (
                 <>
-                  <Button sx={{ color: "black" }} component={Link} to="/my-links">
+                  <Button sx={{ color: "black" }} component={Link} to="/mylinks">
                       My Links
                     </Button>
                   <Button sx={{ color: "black" }} onClick={logout}>

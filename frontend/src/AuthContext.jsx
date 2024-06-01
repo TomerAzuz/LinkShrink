@@ -1,34 +1,36 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { AUTH_LOGIN, AUTH_SIGNUP, AUTH_ACTIVATE, AUTH_FORGOT, USERS_ME, AUTH_VERIFY_CODE, AUTH_PWD_RESET } from "./constants/urlConstants";
+import { AUTH_LOGIN, 
+         AUTH_SIGNUP, 
+         AUTH_ACTIVATE, 
+         AUTH_FORGOT, 
+         USERS_ME, 
+         AUTH_VERIFY_CODE, 
+         AUTH_PWD_RESET 
+        } from "./constants/urlConstants";
 import RequestService from "./services/RequestService";
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("TOKEN_KEY"));
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
-      setLoading(true);
       try {
         const response = await RequestService.get(USERS_ME, true);
-        setUser(response.data.user);
+        setUser(response.data);
       } catch (error) {
-        console.error("Failed to fetch user");
-      } finally {
-        setLoading(false);
+        console.error("Unauthenticated user");
       }
     };
-
+    
     if (token) {
       fetchUser();
-    } else {
-      setLoading(false);
     }
   }, [token]);
 
@@ -39,33 +41,31 @@ const AuthProvider = ({ children }) => {
       setUser(response.data);
       navigate("/activate");
     } catch (error) {
-      console.error("Failed to register user");
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const login = async (authRequest, setStatus) => {
+  const login = async (authRequest) => {
     setLoading(true);
     try {
       const response = await RequestService.post(AUTH_LOGIN, authRequest);
       const { token } = response.data;
       setUser(response.data.user);
-
+      
       localStorage.setItem("TOKEN_KEY", token);
       setToken(token);
       
       navigate("/");
     } catch (error) {
-      setStatus(error.message);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const activateAccount = async (code, setStatus) => {
+  const activateAccount = async (code) => {
     setLoading(true);  
     try {
       const response = await RequestService.get(`${AUTH_ACTIVATE}/${code}`);      
@@ -74,25 +74,23 @@ const AuthProvider = ({ children }) => {
         navigate("/login");
       } 
     } catch (error) {
-      setStatus(error.message);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const requestResetCode = async (email, setStatus) => {
+  const requestResetCode = async (email) => {
     try {
       const response = await RequestService.get(`${AUTH_FORGOT}/${email}`);
       console.log(response)
       return response && response.status === 200;
     } catch (error) {
-      setStatus(error.message);
       throw error;
     }
   };
 
-  const verifyResetCode = async (code, setStatus) => {
+  const verifyResetCode = async (code) => {
     setLoading(true);
     try {
       const response = await RequestService.get(`${AUTH_VERIFY_CODE}/${code}`);
@@ -100,20 +98,18 @@ const AuthProvider = ({ children }) => {
         navigate("/reset-password");
       }
     } catch (error) {
-      setStatus(error.message);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const resetPassword = async (resetRequest, setStatus) => {
+  const resetPassword = async (resetRequest) => {
     setLoading(true);
     try {
       const response = await RequestService.post(AUTH_PWD_RESET, resetRequest);
       return response && response.status === 200;
     } catch (error) {
-      setStatus(error.message);
       throw error;
     } finally {
       setLoading(false);
@@ -138,7 +134,7 @@ const AuthProvider = ({ children }) => {
                requestResetCode, 
                verifyResetCode,
                resetPassword,
-               logout 
+               logout
             }}
     >
       {children}

@@ -36,8 +36,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update # use validate in production
-    show-sql: true
+      ddl-auto: update
 
 jwt:
   secret: 324221acef13bc948c21f0ec1bca9e54d793ba5f5d08e103e5215030d432c163

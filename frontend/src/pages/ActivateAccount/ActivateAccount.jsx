@@ -22,13 +22,18 @@ const ActivateAccount = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
-        <Typography variant="h4" align="center" gutterBottom fontWeight="bold">
+        <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
           Activate Account
+        </Typography>
+        <Typography variant="body1" align="center" paragraph>
+          Please enter the activation code sent to your email to activate your account. 
+          If you haven't received the code, check your spam folder or request a new code.
         </Typography>
         <Formik
           initialValues={{ activationCode: "" }}
           validationSchema={ActivateAccountSchema}
-          onSubmit={async (values, { setStatus }) => await activateAccount(values.activationCode, setStatus)}
+          onSubmit={async (values, { setStatus }) => 
+            await activateAccount(values.activationCode, setStatus)}
         >
           {({ isSubmitting, status }) => (
             <Form>
@@ -46,7 +51,7 @@ const ActivateAccount = () => {
                   {status && <Typography color="error">{status}</Typography>}
                 </Grid>
                 {loading && <Loader />}
-                <Grid item xs={12}>
+                <Grid item xs={12} container direction="column" alignItems="center">
                   <Button
                     type="submit"
                     variant="contained"

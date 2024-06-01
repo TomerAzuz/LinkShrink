@@ -8,6 +8,7 @@ import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
 
 import Loader from "../../components/Loader/Loader";
 
@@ -31,7 +32,6 @@ const Analytics = () => {
     };
 
     getAnalyticsData();
-
   }, []);
 
   const handleMetricChange = (event) => {
@@ -39,7 +39,7 @@ const Analytics = () => {
   };
 
   if (error) {
-    return <>{error.message}</>
+    return <Typography color="error">{error.message}</Typography>;
   }
 
   if (loading || !data) {
@@ -47,33 +47,41 @@ const Analytics = () => {
   }
 
   return (
-    <Container>
-      <Box component="section" p={2} mt={4}>
-        <Typography variant="h2" align="center">
-          Analytics
+    <Container maxWidth="lg">
+      <Box my={4}>
+        <Typography variant="h2" align="center" gutterBottom>
+          Analytics Dashboard
         </Typography>
-        <Box component="section" mt={2}>
-          <Typography variant="h6" gutterBottom>
-            Total clicks: {data.length}
-          </Typography>
-        </Box>
+        <Typography variant="body1" align="center" paragraph>
+          Welcome to the analytics dashboard. Here you can explore various metrics related to user interactions with your service. 
+          Use the dropdown below to select different metrics such as country, device type, access time, and browser.
+        </Typography>
       </Box>
-      <Box component="section" p={2} mt={2}>
-        <FormControl>
-          <InputLabel id="select-metric-label">Metric</InputLabel>
-          <Select
-            labelId="select-metric-label"
-            id="select-metric"
-            value={metric}
-            label="Metric"
-            onChange={handleMetricChange}
-          >
-            <MenuItem value="country">Country</MenuItem>
-            <MenuItem value="deviceType">Device type</MenuItem>
-            <MenuItem value="accessTime">Access time</MenuItem>
-            <MenuItem value="browser">Browser</MenuItem>
-          </Select>
-        </FormControl>
+      <Box mb={4}>
+        <Typography variant="h6" align="center" gutterBottom>
+          Total clicks: {data.length}
+        </Typography>
+      </Box>
+      <Grid container spacing={3} justifyContent="center">
+        <Grid item xs={12} sm={6} md={4}>
+          <FormControl fullWidth>
+            <InputLabel id="select-metric-label">Metric</InputLabel>
+            <Select
+              labelId="select-metric-label"
+              id="select-metric"
+              value={metric}
+              label="Metric"
+              onChange={handleMetricChange}
+            >
+              <MenuItem value="country">Country</MenuItem>
+              <MenuItem value="deviceType">Device type</MenuItem>
+              <MenuItem value="accessTime">Access time</MenuItem>
+              <MenuItem value="browser">Browser</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+      <Box mt={4}>
         <ChartComponent data={data} metric={metric} />
       </Box>
     </Container>

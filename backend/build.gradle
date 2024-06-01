@@ -38,10 +38,12 @@ dependencies {
 	implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:8.0.1'
 	implementation 'eu.bitwalker:UserAgentUtils:1.21'
 	implementation 'org.jsoup:jsoup:1.14.3'
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.testcontainers:junit-jupiter'

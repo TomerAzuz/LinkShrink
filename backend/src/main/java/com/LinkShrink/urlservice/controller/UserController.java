@@ -1,54 +1,40 @@
 package com.LinkShrink.urlservice.controller;
 
-import com.LinkShrink.urlservice.dto.AuthResponse;
 import com.LinkShrink.urlservice.dto.UserResponse;
-import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.service.UserService;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RequestMapping("/api/v1/users")
+import static com.LinkShrink.urlservice.constants.UrlPaths.API_V1_USERS;
+import static com.LinkShrink.urlservice.constants.UrlPaths.ME;
+
+@RequestMapping(API_V1_USERS)
 @RestController
 public class UserController {
 
-    private final UserService userService;
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
+    @Autowired
+    private UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<AuthResponse> authenticatedUser() {
-        User currentUser = userService.getCurrentUser();
-        UserResponse userResponse = new UserResponse(
-                currentUser.getFullName(),
-                currentUser.getEmail(),
-                currentUser.isActive());
-
-        AuthResponse authResponse = AuthResponse.builder()
-                .user(userResponse)
-                .build();
-
-        return ResponseEntity.ok(authResponse);
+    @GetMapping(ME)
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse authenticatedUser() {
+        log.info("Getting authenticated user");
+        return userService.getCurrentUser();
     }
 
     @GetMapping
-    public ResponseEntity<List<AuthResponse>> allUsers() {
-        List<User> users = userService.allUsers();
-        List<AuthResponse> userList = users
-                .stream()
-                .map(user -> AuthResponse.builder()
-                        .user(new UserResponse(
-                                user.getFullName(),
-                                user.getEmail(),
-                                user.isActive()))
-                        .build())
-                .toList();
-
-        return ResponseEntity.ok(userList);
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> allUsers() {
+        log.info("Getting all users");
+        return userService.allUsers();
     }
 }

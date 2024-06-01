@@ -1,8 +1,9 @@
 package com.LinkShrink.urlservice.service;
 
+import com.LinkShrink.urlservice.dto.UserResponse;
+import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundException;
 import com.LinkShrink.urlservice.model.UrlAnalytics;
 import com.LinkShrink.urlservice.model.UrlMapping;
-import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.AnalyticsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +19,8 @@ import eu.bitwalker.useragentutils.UserAgent;
 
 import java.util.*;
 
+import static com.LinkShrink.urlservice.constants.UrlPaths.IP_API_URL;
+
 @Service
 public class AnalyticsService {
 
@@ -27,62 +30,61 @@ public class AnalyticsService {
     @Autowired
     private UserService userService;
 
-    private static final String API_URL = "http://ip-api.com/json/";
-
     public void saveUrlAnalytics(UrlMapping urlMapping, HttpServletRequest request) {
         UrlAnalytics analytics = buildAnalytics(urlMapping, request);
-        System.out.println(analytics);
         analyticsRepository.save(analytics);
     }
 
     private UrlAnalytics buildAnalytics(UrlMapping urlMapping, HttpServletRequest request) {
         UrlAnalytics analytics = new UrlAnalytics();
+
+        analytics.setAccessTime(new Date());
         analytics.setUrlMapping(urlMapping);
 
         String userAgent = request.getHeader("User-Agent");
-
-        analytics.setAccessTime(new Date());
-
         String ipAddress = request.getRemoteAddr();
         String country = getCountryFromIp(ipAddress);
         analytics.setCountry(country);
-        System.out.println("Country: " + country);
-
-
         String browser = getBrowser(userAgent);
         analytics.setBrowser(browser);
-
         String deviceType = getDeviceType(userAgent);
         analytics.setDeviceType(deviceType);
 
         return analytics;
     }
 
-    public List<UrlAnalytics> getAnalyticsById(Long urlMappingId) {
-        User user = userService.getCurrentUser();
-        return analyticsRepository.findByUrlMappingIdAndUrlMapping_CreatedBy(urlMappingId, user.getId());
+    public List<UrlAnalytics> viewAnalyticsByUrlId(Long urlId) {
+        if (!analyticsRepository.existsByUrlMappingId(urlId)) {
+            throw new UrlMappingNotFoundException("URL not found");
+        }
+        UserResponse user = userService.getCurrentUser();
+        return analyticsRepository
+                .findByUrlMappingIdAndUrlMapping_CreatedBy(urlId, user.getId());
     }
 
-    public List<UrlAnalytics> getAllAnalytics() {
-        User user = userService.getCurrentUser();
+    public List<UrlAnalytics> viewAllAnalytics() {
+        UserResponse user = userService.getCurrentUser();
         return analyticsRepository.findAllByUrlMapping_CreatedBy(user.getId());
     }
 
-//    private Map<Long, List<UrlAnalytics>> aggregateByUrlId(List<List<UrlAnalytics>> allAnalytics) {
-//        Map<Long, List<UrlAnalytics>> aggregatedData = new HashMap<>();
-//        for (List<UrlAnalytics> analytics : allAnalytics) {
-//            for (UrlAnalytics access : analytics) {
-//                Long urlMappingId = access.getUrlMapping().getId();
-//                aggregatedData.putIfAbsent(urlMappingId, new ArrayList<>());
-//                aggregatedData.get(urlMappingId).add(access);
-//            }
-//        }
-//        return aggregatedData;
-//    }
+    private Map<Long, List<UrlAnalytics>> aggregateByUrlId(List<List<UrlAnalytics>> allAnalytics) {
+        Map<Long, List<UrlAnalytics>> aggregatedData = new HashMap<>();
+        for (List<UrlAnalytics> analytics : allAnalytics) {
+            for (UrlAnalytics access : analytics) {
+                Long urlMappingId = access.getUrlMapping().getId();
+                aggregatedData.putIfAbsent(urlMappingId, new ArrayList<>());
+                aggregatedData.get(urlMappingId).add(access);
+            }
+        }
+        return aggregatedData;
+    }
 
     private String getCountryFromIp(String ip) {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.getForEntity(API_URL + "?fields=country&query=" + ip, String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                IP_API_URL + "?fields=country&query=" + ip,
+                String.class);
+
         if (response.getStatusCode().is2xxSuccessful()) {
             String responseBody = response.getBody();
             return responseBody != null ?

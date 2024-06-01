@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface AnalyticsRepository extends JpaRepository<UrlAnalytics, Long> {
-
+    boolean existsByUrlMappingId(Long urlMappingId);
     List<UrlAnalytics> findByUrlMappingIdAndUrlMapping_CreatedBy(Long urlMappingId, Long userId);
     List<UrlAnalytics> findAllByUrlMapping_CreatedBy(Long userId);
 }

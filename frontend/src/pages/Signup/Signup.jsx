@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -36,7 +37,7 @@ const Signup = () => {
       setStatus(null);
       await register(values);
     } catch (error) {
-      setStatus(error.message);
+      toast.error(error.response?.data?.message || "Unexpected error");
     }
   };
 
@@ -88,9 +89,6 @@ const Signup = () => {
                     autoComplete="new-password" 
                     component={FormField} 
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  {status && <Typography color="error">Error: Registration failed</Typography>}
                 </Grid>
                 <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
                   <Grid item>

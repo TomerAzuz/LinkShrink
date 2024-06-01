@@ -43,7 +43,7 @@ describe('UrlInput Component', () => {
     fireEvent.click(shrinkButton);
   
     // Check if RequestService.post is called with the correct arguments
-    expect(RequestService.post).toHaveBeenCalledWith('/shorten', { longUrl: 'https://example.com' });
+    expect(RequestService.post).toHaveBeenCalledWith('/shorten', { url: 'https://example.com' });
   
     await waitFor(() => {
       // Check if the shortened URL is displayed after the request is resolved
@@ -63,7 +63,7 @@ describe('UrlInput Component', () => {
     fireEvent.click(qrButton);
 
     // Check if RequestService.post is called with the correct arguments
-    expect(RequestService.post).toHaveBeenCalledWith('/qr', { longUrl: 'https://example.com' });
+    expect(RequestService.post).toHaveBeenCalledWith('/qr', { url: 'https://example.com' });
 
     await waitFor(() => {
       // Check if the QR code image is displayed after the request is resolved

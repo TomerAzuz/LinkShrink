@@ -5,7 +5,7 @@ import Loader from '../components/Loader/Loader';
 
 const CustomRoute = ({ component: Component }) => {
   const { token, user, loading } = useAuth();
-
+  
   if (loading) return <Loader />;
   if (user && user.active && token) return <Navigate to="/" />;
   return <Component />;

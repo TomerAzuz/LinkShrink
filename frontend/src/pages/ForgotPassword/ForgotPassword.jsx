@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -22,16 +23,18 @@ const ForgotPassword = () => {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const { requestResetCode } = useAuth();
 
-  const handleForgotPassword = async (values, setStatus, resetForm) => {
+  const handleForgotPassword = async (values, resetForm) => {
     try {
-      setStatus(null);
-      const response = await requestResetCode(values.email, setStatus);
+      const response = await requestResetCode(values.email);
       if (response) {
         setIsCodeSent(true);
-        resetForm();
+        toast.success("Reset code sent successfully");
       }
     } catch (error) {
-      setStatus(error.message);
+      console.log(error);
+      toast.error(error.response?.data?.message || "Unexpected error");
+    } finally {
+      resetForm();
     }
   };
 
@@ -47,29 +50,37 @@ const ForgotPassword = () => {
         <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
           Reset your password
         </Typography>
+        <Typography variant="body1" align="center" paragraph>
+          Enter your email address below, and we'll send you instructions on how to reset your password. 
+          If you don't receive an email, please check your spam folder or request a new code.
+        </Typography>
+        {isCodeSent && (
+          <Typography fontWeight="bold" variant="body1" align="center" color="success" paragraph>
+              A reset code has been sent to your email!
+          </Typography>
+        )}
         <Formik
           initialValues={{ email: "" }}
           validationSchema={PasswordResetSchema}
-          onSubmit={async (values, { setStatus, resetForm }) => 
-            await handleForgotPassword(values, setStatus, resetForm)}
+          onSubmit={async (values, { resetForm }) => 
+            await handleForgotPassword(values, resetForm)}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting }) => (
             <Form>
               <Grid container mt={2}>
               {isCodeSent ? (
                   <Grid item xs={12}>
-                    <Box display="flex"  justifyContent="center" alignItems="center">
-                      <Typography variant="body1" fontWeight="bold" gutterBottom>Code sent successfully</Typography>
+                    <Box display="flex" justifyContent="center" alignItems="center">
                       <Button 
                         variant="contained" 
-                        sx={{ margin: 4 }} 
+                        sx={{ margin: 1 }}
                         onClick={() => setIsCodeSent(false)}
                       >
                         Resend code
                       </Button>
                       <Button 
                         variant="contained" 
-                        sx={{ margin: 4 }} 
+                        sx={{ margin: 1 }}
                         component={Link} 
                         to="/verify-code"
                       >
@@ -78,32 +89,31 @@ const ForgotPassword = () => {
                     </Box>
                   </Grid>
                 ) : (
-                  <>
-                  <Typography variant="body1" align="center" mb={4}>
-                    Enter your email address and we will send you instructions to reset your password.
-                  </Typography>
-                    <Grid item xs={12}>
-                      <Field 
-                        name="email" 
-                        label="Email address" 
-                        type="email" 
-                        autoComplete="email" 
-                        component={FormField} 
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      {status && <Typography color="error">{status}</Typography>}
-                    </Grid>
-                      <Grid item xs={12} mt={2} container direction="column" alignItems="center">
-                      <Button 
-                        type="submit" 
-                        variant="contained" 
-                        disabled={isSubmitting}
-                      >
-                        Reset Password
-                      </Button>
-                    </Grid>           
-                  </>)}
+                <>
+                  <Grid item xs={12}>
+                    <Field 
+                      name="email" 
+                      label="Email address" 
+                      type="email" 
+                      autoComplete="email" 
+                      component={FormField} 
+                    />
+                  </Grid>
+                  <Grid item xs={12} 
+                    mt={2} 
+                    container 
+                    direction="column" 
+                    alignItems="center"
+                  >
+                  <Button 
+                    type="submit" 
+                    variant="contained" 
+                    disabled={isSubmitting}
+                  >
+                    Reset Password
+                  </Button>
+                </Grid>           
+                </>)}
               </Grid>
             </Form>
           )}

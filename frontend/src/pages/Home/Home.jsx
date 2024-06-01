@@ -2,7 +2,7 @@ import React from 'react';
 import Container from "@mui/material/Container";
 
 import UrlInput from "./UrlInput/UrlInput";
-import TextSection from "./TextSection/TextSection";
+import Logo from '../../components/Logo/Logo';
 
 const Home = () => {
   return (
@@ -18,7 +18,7 @@ const Home = () => {
         overflow: 'hidden',
       }}
     >
-      <TextSection/>
+      <Logo size={{ xs: "4rem", md: "6rem" }}/>
       <UrlInput />
     </Container>
   );

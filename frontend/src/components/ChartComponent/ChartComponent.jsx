@@ -41,7 +41,7 @@ const ChartComponent = ({ data, metric }) => {
       };
       return (
         <Box display="flex" justifyContent="center" mt={2}>
-          <Box width="500px" height="500px">
+          <Box maxWidth="600px">
             <Pie data={chartData} />
           </Box>
         </Box>
@@ -65,7 +65,7 @@ const ChartComponent = ({ data, metric }) => {
       };
       return (
         <Box display="flex" justifyContent="center" mt={2}>
-          <Box width="500px" height="500px">
+         <Box maxWidth="400px">
             <Bar data={chartData} />
           </Box>
         </Box>
@@ -78,7 +78,7 @@ const ChartComponent = ({ data, metric }) => {
       };
       return (
         <Box display="flex" justifyContent="center" mt={2}>
-          <Box width="500px" height="500px">
+          <Box maxWidth="400px">
             <Pie data={chartData} />
           </Box>
         </Box>

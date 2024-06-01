@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UrlRequest {
+public class UrlDto {
 
     @NotBlank(message = "URL is required")
-    private String longUrl;
+    private String url;
 }
