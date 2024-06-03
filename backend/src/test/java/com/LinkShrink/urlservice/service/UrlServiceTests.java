@@ -20,13 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.testcontainers.shaded.com.google.common.collect.Iterables;
 
@@ -35,10 +33,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@TestPropertySource(properties = {
-        "server.url=http://localhost:9000"
-})
+
 @ExtendWith(MockitoExtension.class)
 public class UrlServiceTests {
     @InjectMocks
@@ -65,14 +60,10 @@ public class UrlServiceTests {
     @Mock
     private ShortCodeValidator shortCodeValidator;
 
-    @Value("${server.url}")
-    private String baseUrl;
-
     @BeforeEach
     public void setUp() {
-        ReflectionTestUtils.setField(urlService, "baseUrl", baseUrl);
+        ReflectionTestUtils.setField(urlService, "baseUrl", "http://localhost:9000");
     }
-
 
     @Test
     public void testCreateUrlMappingInvalidUrl() {
