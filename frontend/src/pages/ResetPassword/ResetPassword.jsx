@@ -37,9 +37,10 @@ const ResetPassword = () => {
         navigate("/login");
         toast.success("Password was reset successfully");
       }
-      resetForm();
     } catch (error) {
       toast.error(error.response?.data?.message || "Unexpected error");
+    } finally {
+      resetForm();
     }
   };
 

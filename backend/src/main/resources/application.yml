@@ -40,4 +40,6 @@ spring:
 
 jwt:
   secret: 324221acef13bc948c21f0ec1bca9e54d793ba5f5d08e103e5215030d432c163
-  expiration-time: 3600000
+  expiration-time: 3600000 # 1 hour
+  refresh:
+    expiration-time: 604800000 # 7 days

@@ -1,6 +1,7 @@
 import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
+import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -19,6 +20,18 @@ const ActivateAccountSchema = Yup.object().shape({
 const ActivateAccount = () => {
   const { activateAccount, loading } = useAuth();
 
+  const handleActivate = async (activationCode, resetForm) => {
+    try {
+      await activateAccount(activationCode);
+      toast.success("Account activated");
+    } catch (error) {
+      console.log(error);
+      toast.error("Account activation failed");
+    } finally {
+      resetForm();
+    }
+  };
+
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
@@ -32,10 +45,10 @@ const ActivateAccount = () => {
         <Formik
           initialValues={{ activationCode: "" }}
           validationSchema={ActivateAccountSchema}
-          onSubmit={async (values, { setStatus }) => 
-            await activateAccount(values.activationCode, setStatus)}
+          onSubmit={async (values, { resetForm }) => 
+            await handleActivate(values.activationCode, resetForm)}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting }) => (
             <Form>
               <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={12}>
@@ -46,9 +59,6 @@ const ActivateAccount = () => {
                     autoComplete="off"
                     component={FormField}
                   />
-                </Grid>
-                <Grid item xs={12}>
-                  {status && <Typography color="error">{status}</Typography>}
                 </Grid>
                 {loading && <Loader />}
                 <Grid item xs={12} container direction="column" alignItems="center">

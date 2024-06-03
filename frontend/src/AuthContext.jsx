@@ -1,5 +1,6 @@
 import React, { useContext, createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 import { AUTH_LOGIN, 
          AUTH_SIGNUP, 
@@ -7,7 +8,8 @@ import { AUTH_LOGIN,
          AUTH_FORGOT, 
          USERS_ME, 
          AUTH_VERIFY_CODE, 
-         AUTH_PWD_RESET 
+         AUTH_PWD_RESET,
+         AUTH_REFRESH
         } from "./constants/urlConstants";
 import RequestService from "./services/RequestService";
 
@@ -28,11 +30,10 @@ const AuthProvider = ({ children }) => {
         console.error("Unauthenticated user");
       }
     };
-    
-    if (token) {
+
       fetchUser();
-    }
-  }, [token]);
+  }, []);
+
 
   const register = async (authRequest) => {
     setLoading(true);
@@ -51,11 +52,12 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await RequestService.post(AUTH_LOGIN, authRequest);
-      const { token } = response.data;
+      const { token, refreshToken } = response.data;
       setUser(response.data.user);
-      
+
       localStorage.setItem("TOKEN_KEY", token);
       setToken(token);
+      Cookies.set("REFRESH_TOKEN_KEY", refreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
       
       navigate("/");
     } catch (error) {
@@ -65,11 +67,36 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const handleRefreshToken = async () => {
+    try {
+      const refreshToken = Cookies.get("REFRESH_TOKEN_KEY");
+      const response = await RequestService.post(AUTH_REFRESH, { refreshToken });
+      const { token, refreshToken: newRefreshToken } = response.data;
+
+      localStorage.setItem("TOKEN_KEY", token);
+      Cookies.set("REFRESH_TOKEN_KEY", newRefreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
+      setToken(token);
+    } catch (error) {
+      console.error("Failed to refresh token", error);
+      logout();
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (token) {
+        handleRefreshToken();
+      }
+    }, 3598000);
+    
+    return () => clearInterval(interval);
+  }, [token]);
+
   const activateAccount = async (code) => {
     setLoading(true);  
     try {
       const response = await RequestService.get(`${AUTH_ACTIVATE}/${code}`);      
-      if (response && response.status === 200) {
+      if (response) {
         setUser(response.data);
         navigate("/login");
       } 
@@ -83,7 +110,6 @@ const AuthProvider = ({ children }) => {
   const requestResetCode = async (email) => {
     try {
       const response = await RequestService.get(`${AUTH_FORGOT}/${email}`);
-      console.log(response)
       return response && response.status === 200;
     } catch (error) {
       throw error;
@@ -94,9 +120,7 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await RequestService.get(`${AUTH_VERIFY_CODE}/${code}`);
-      if (response && response.status === 200) {
-        navigate("/reset-password");
-      }
+      return response && response.status === 200;
     } catch (error) {
       throw error;
     } finally {
@@ -119,6 +143,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken("");
+    Cookies.remove("REFRESH_TOKEN_KEY");
     localStorage.removeItem("TOKEN_KEY");
     navigate("/login");
   };
@@ -130,6 +155,7 @@ const AuthProvider = ({ children }) => {
                loading, 
                register, 
                login, 
+               handleRefreshToken,
                activateAccount, 
                requestResetCode, 
                verifyResetCode,

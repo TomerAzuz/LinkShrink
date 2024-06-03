@@ -32,7 +32,7 @@ const Navbar = () => {
                 About
               </Button>
               <Divider orientation="vertical" flexItem />
-              {user ? (
+              {user && user.active ? (
                 <>
                   <Button sx={{ color: "black" }} component={Link} to="/mylinks">
                       My Links

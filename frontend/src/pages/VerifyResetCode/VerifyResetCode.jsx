@@ -27,12 +27,12 @@ const VerifyResetCode = () => {
       const response = await verifyResetCode(values.resetCode);
       if (response) {
         toast.success("Reset code verified");
-        navigate("/reset-password");
+        navigate("/reset");
       }
-      resetForm();
     } catch (error) {
-      console.log(error)
       toast.error(error.response?.data?.message || "Unexpected error");
+    } finally {
+      resetForm();
     }
   };
 

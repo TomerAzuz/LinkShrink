@@ -1,10 +1,7 @@
 package com.LinkShrink.urlservice.service;
 
 import com.LinkShrink.urlservice.constants.EmailTemplates;
-import com.LinkShrink.urlservice.dto.AuthResponse;
-import com.LinkShrink.urlservice.dto.RegistrationRequest;
-import com.LinkShrink.urlservice.dto.LoginRequest;
-import com.LinkShrink.urlservice.dto.UserResponse;
+import com.LinkShrink.urlservice.dto.*;
 import com.LinkShrink.urlservice.enums.Role;
 import com.LinkShrink.urlservice.exception.AuthExceptions.EmailExistsException;
 import com.LinkShrink.urlservice.exception.AuthExceptions.InvalidCodeException;
@@ -15,15 +12,15 @@ import com.LinkShrink.urlservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.mail.MessagingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -105,15 +102,37 @@ public class AuthenticationService {
             claims.put("role", Role.USER);
 
             String jwtToken = jwtService.generateToken(claims, user);
+            String refreshToken = jwtService.generateRefreshToken(user);
             UserResponse userResponse = userMapper.userToUserResponse(user);
 
             return AuthResponse.builder()
                     .token(jwtToken)
+                    .refreshToken(refreshToken)
                     .expiresIn(jwtService.getExpirationTime())
                     .user(userResponse)
                     .build();
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid credentials");
+        }
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        UserDetails userDetails = jwtService.getUserDetailsFromToken(refreshToken);
+        if (jwtService.isTokenValid(refreshToken, userDetails)) {
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            String jwtToken = jwtService.generateToken(user);
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .refreshToken(refreshToken)
+                    .expiresIn(jwtService.getExpirationTime())
+                    .user(userMapper.userToUserResponse(user))
+                    .build();
+        } else {
+            throw new InvalidBearerTokenException("Invalid refresh token");
         }
     }
 

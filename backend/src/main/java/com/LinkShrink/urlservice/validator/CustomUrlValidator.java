@@ -14,14 +14,11 @@ public class CustomUrlValidator extends UrlValidator {
 
     @Override
     public boolean isValid(String url) {
-        // Check if the URL starts with the base URL
-        if (url.startsWith(baseUrl)) {
-            return false;
-        }
         // Check if the URL starts with a protocol prefix
         if (url.matches("^\\w+://.*")) {
             return super.isValid(url);
         }
         return super.isValid("https://" + url);
     }
+
 }

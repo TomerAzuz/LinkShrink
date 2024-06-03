@@ -34,6 +34,13 @@ public class AuthController {
         return authService.authenticate(loginRequest);
     }
 
+    @PostMapping(REFRESH_TOKEN)
+    @ResponseStatus(HttpStatus.OK)
+    public AuthResponse refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        logger.info("Refreshing token");
+        return authService.refreshToken(refreshTokenRequest);
+    }
+
     @GetMapping(ACTIVATE_CODE)
     @ResponseStatus(HttpStatus.OK)
     public UserResponse activateAccount(@PathVariable("code") String code) {

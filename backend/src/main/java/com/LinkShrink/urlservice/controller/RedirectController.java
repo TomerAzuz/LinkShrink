@@ -33,7 +33,7 @@ public class RedirectController {
             return new RedirectView(response.getLongUrl());
         } catch (UrlMappingNotFoundException e) {
             log.error("URL not found for short code: {}", shortCode);
-            return new RedirectView("/", true);
+            return new RedirectView("/error", true);
         }
     }
 }

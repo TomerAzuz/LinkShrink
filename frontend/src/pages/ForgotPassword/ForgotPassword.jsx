@@ -31,7 +31,6 @@ const ForgotPassword = () => {
         toast.success("Reset code sent successfully");
       }
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Unexpected error");
     } finally {
       resetForm();
@@ -82,7 +81,7 @@ const ForgotPassword = () => {
                         variant="contained" 
                         sx={{ margin: 1 }}
                         component={Link} 
-                        to="/verify-code"
+                        to="/verify"
                       >
                         Verify code
                       </Button>

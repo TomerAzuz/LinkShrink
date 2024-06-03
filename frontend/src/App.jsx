@@ -4,7 +4,6 @@ import { Toaster } from 'react-hot-toast';
 
 import "./App.css"
 import PrivateRoute from "./routes/PrivateRoute";
-import CustomRoute from "./routes/CustomRoute";
 import Home from "./pages/Home/Home";
 import Signup from "./pages/Signup/Signup";
 import Login from "./pages/Login/Login";
@@ -17,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import VerifyResetCode from "./pages/VerifyResetCode/VerifyResetCode";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import LandingPage from "./pages/LandingPage/LandingPage";
+import NotFound from "./pages/NotFound/NotFound";
 
 const App = () => (
     <Router>
@@ -25,16 +25,17 @@ const App = () => (
           <Toaster />
           <Navbar />
           <Routes>
-            <Route path="/landing" element={<CustomRoute component={LandingPage} />} />
-            <Route path="/signup" element={<CustomRoute component={Signup} />} />
-            <Route path="/login" element={<CustomRoute component={Login} />} />
-            <Route path="/forgot" element={<CustomRoute component={ForgotPassword} />} />
-            <Route path="/verify-code" element={<CustomRoute component={VerifyResetCode} />} />
-            <Route path="/reset-password" element={<CustomRoute component={ResetPassword} />} />
-            <Route path="/activate" element={<CustomRoute component={ActivateAccount} />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot" element={<ForgotPassword />} />
+            <Route path="/verify" element={<VerifyResetCode />} />
+            <Route path="/reset" element={<ResetPassword />} />
+            <Route path="/activate" element={<ActivateAccount />} />
             <Route path="/mylinks" element={<PrivateRoute component={MyLinks} />} />
             <Route path="/analytics" element={<PrivateRoute component={Analytics} />} />
             <Route path="/" element={<PrivateRoute component={Home} />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </>
       </AuthProvider>

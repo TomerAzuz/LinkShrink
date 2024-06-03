@@ -98,7 +98,13 @@ public class AuthControllerTests {
     public void testLogin() throws Exception {
         UserResponse userResponse = createUserResponse(true);
         String token = "Bearer jwtToken";
-        AuthResponse authResponse = new AuthResponse(token, 3600, userResponse);
+        String refreshToken = "Bearer jwtRefreshToken";
+        AuthResponse authResponse = AuthResponse.builder()
+                .token(token)
+                .expiresIn(3600L)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
 
         when(authService.authenticate(any(LoginRequest.class)))
                 .thenReturn(authResponse);
@@ -108,11 +114,11 @@ public class AuthControllerTests {
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value(token))
+                .andExpect(jsonPath("$.refreshToken").value(refreshToken))
                 .andExpect(jsonPath("$.expiresIn").value(3600))
                 .andExpect(jsonPath("$.user.fullName").value(username))
                 .andExpect(jsonPath("$.user.active").value(true))
                 .andExpect(jsonPath("$.user.email").value(userEmail));
-
     }
 
     @Test
@@ -143,6 +149,30 @@ public class AuthControllerTests {
         String resetCode = "resetCode1233";
         mockMvc.perform(get(API_V1_AUTH + "/verify/" + resetCode))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testRefreshToken() throws Exception {
+        RefreshTokenRequest request = new RefreshTokenRequest("Bearer validRefreshToken");
+
+        String token = "Bearer newJwtToken";
+        String refreshToken = "Bearer jwtRefreshToken";
+        long expirationTime = 3600;
+        AuthResponse authResponse = AuthResponse.builder()
+                .token(token)
+                .expiresIn(expirationTime)
+                .refreshToken(refreshToken)
+                .build();
+
+        when(authService.refreshToken(any(RefreshTokenRequest.class)))
+                .thenReturn(authResponse);
+
+        mockMvc.perform(post(API_V1_AUTH + REFRESH_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(jsonPath("$.token").value(token))
+                .andExpect(jsonPath("$.expiresIn").value(expirationTime))
+                .andExpect(jsonPath("$.refreshToken").value(refreshToken));
     }
 
     @Test

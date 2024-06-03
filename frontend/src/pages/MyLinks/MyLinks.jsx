@@ -13,15 +13,19 @@ import RequestService from "../../services/RequestService";
 import Loader from "../../components/Loader/Loader";
 import LinkDetailsItem from "../../components/LinkDetailsItem/LinkDetailsItem";
 
+const PAGE_SIZE = 10;
+
 const MyLinks = () => {
   const navigate = useNavigate();
   const [links, setLinks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [reachedEnd, setReachedEnd] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const deleteLink = async (id) => {
     try {
       const response = await RequestService.delete(`/url/${id}`);
-      if (response.status === 204) {
+      if (response && response.status === 204) {
         const filteredLinks = links.filter(link => link.id !== id);
         setLinks(filteredLinks);
         toast.success("Link deleted");
@@ -34,19 +38,47 @@ const MyLinks = () => {
   useEffect(() => {
     const getLinks = async () => {
       try {
-        const response = await RequestService.get(URL_MYLINKS, true);
-        setLinks(response.data);
+        setLoading(true);
+        const response = await RequestService.get(`${URL_MYLINKS}?page=${currentPage}`, true);
+        if (!response || !response.data || response.data.length === 0) {
+          setReachedEnd(true);
+          return;
+        }
+        if (links.length === 0) {
+          setLinks(response.data);
+        } else if (links.length < PAGE_SIZE) {
+          setReachedEnd(true);
+        } else {
+          setLinks((prevLinks) => [...prevLinks, ...response.data]);
+        }
       } catch (error) {
         toast.error("Error: Failed to load links");
       } finally {
         setLoading(false);
       }
     };
+    if (!reachedEnd && !loading) {
+      getLinks(currentPage);
+    }
 
-    getLinks();
+  }, [currentPage]);
+
+  const handleScroll = () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight;
+    const clientHeight = document.documentElement.clientHeight;
+
+    if (scrollTop + clientHeight >= scrollHeight && !loading && !reachedEnd) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (loading) {
+  if (loading && currentPage === 0) {
     return <Loader />;
   }
 
@@ -94,6 +126,9 @@ const MyLinks = () => {
           />
         ))}
       </Grid>
+      <Box textAlign="center" mt={4}>
+        {loading && <Loader />}
+      </Box>
     </Container>
   );
 };

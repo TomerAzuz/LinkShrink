@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.LinkShrink.urlservice.constants.UrlPaths.*;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -109,12 +113,30 @@ public class UrlControllerTests {
                 .title("Title2")
                 .build();
 
-        given(urlService.viewAllUrlMappings()).willReturn(List.of(response1, response2));
+        Page<UrlMappingResponse> mockPage = new PageImpl<>(List.of(response1, response2));
+        given(urlService.viewAllUrlMappings(Pageable.ofSize(10))).willReturn(mockPage);
 
-        mockMvc.perform(MockMvcRequestBuilders.get(API_V1_URL + MY_LINKS))
+        mockMvc.perform(MockMvcRequestBuilders.get(API_V1_URL + MY_LINKS)
+                        .param("page", "0")
+                        .param("size", "10"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].longUrl").value("http://www.example1.com"))
-                .andExpect(jsonPath("$[1].longUrl").value("http://www.example2.com"));
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].longUrl").value("http://www.example1.com"))
+                .andExpect(jsonPath("$.content[0].shortUrl").value(BASE_URL + "/short1"))
+                .andExpect(jsonPath("$.content[0].qrCodeData").value("QR1"))
+                .andExpect(jsonPath("$.content[0].title").value("Title1"))
+                .andExpect(jsonPath("$.content[1].longUrl").value("http://www.example2.com"))
+                .andExpect(jsonPath("$.content[1].shortUrl").value(BASE_URL + "/short2"))
+                .andExpect(jsonPath("$.content[1].qrCodeData").value("QR2"))
+                .andExpect(jsonPath("$.content[1].title").value("Title2"))
+
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.numberOfElements").value(2))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(true));
     }
 
     @Test

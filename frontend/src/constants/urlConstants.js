@@ -5,6 +5,7 @@ export const API_BASE_URL = BASE_URL + "/api/v1";
 export const AUTH_LOGIN = "/auth/login";
 export const AUTH_SIGNUP = "/auth/signup";
 export const AUTH_ACTIVATE = "/auth/activate";
+export const AUTH_REFRESH = "/auth/refresh";
 export const AUTH_FORGOT = "/auth/forgot";
 export const AUTH_VERIFY_CODE = "/auth/verify";
 export const AUTH_PWD_RESET = "/auth/reset";

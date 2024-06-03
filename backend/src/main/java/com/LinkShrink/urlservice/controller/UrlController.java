@@ -11,11 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.LinkShrink.urlservice.constants.UrlPaths.*;
 
@@ -44,10 +44,11 @@ public class UrlController {
 
     @GetMapping(MY_LINKS)
     @ResponseStatus(HttpStatus.OK)
-    public List<UrlMappingResponse> getUrlMappings() {
-        log.info("Getting all url mappings");
+    public Iterable<UrlMappingResponse> getUrlMappings(@RequestParam(name = "page", defaultValue = "0") int page) {
+        log.info("Getting all url mappings for page {}", page);
 
-        return urlService.viewAllUrlMappings();
+        Pageable pageable = PageRequest.of(page, 10);
+        return urlService.viewAllUrlMappings(pageable);
     }
 
     @DeleteMapping(URL_ID)

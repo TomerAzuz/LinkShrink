@@ -7,7 +7,9 @@ export const validateUrl = (url) => {
     url = 'https://' + url;
   }
 
-  // Use validator library to validate the URL
+  console.log(url)
+
+  // Validate the URL
   if (!validator.isURL(url)) {
     throw new Error('Invalid URL');
   }

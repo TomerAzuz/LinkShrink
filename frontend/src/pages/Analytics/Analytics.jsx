@@ -14,6 +14,7 @@ import Loader from "../../components/Loader/Loader";
 
 const Analytics = () => {
   const [metric, setMetric] = useState("country");
+  const [timeScale, setTimeScale] = useState("hour");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,6 +37,10 @@ const Analytics = () => {
 
   const handleMetricChange = (event) => {
     setMetric(event.target.value);
+  };
+
+  const handleTimeScaleChange = (event) => {
+    setTimeScale(event.target.value);
   };
 
   if (error) {
@@ -62,7 +67,7 @@ const Analytics = () => {
           Total clicks: {data.length}
         </Typography>
       </Box>
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
         <Grid item xs={12} sm={6} md={4}>
           <FormControl fullWidth>
             <InputLabel id="select-metric-label">Metric</InputLabel>
@@ -72,6 +77,7 @@ const Analytics = () => {
               value={metric}
               label="Metric"
               onChange={handleMetricChange}
+              style={{ minWidth: "150px" }}
             >
               <MenuItem value="country">Country</MenuItem>
               <MenuItem value="deviceType">Device type</MenuItem>
@@ -80,9 +86,29 @@ const Analytics = () => {
             </Select>
           </FormControl>
         </Grid>
+        {metric === 'accessTime' && (
+          <Grid item xs={12} sm={6} md={4}>
+            <FormControl fullWidth>
+              <InputLabel id="select-time-scale-label">Time Scale</InputLabel>
+              <Select
+                labelId="select-time-scale-label"
+                id="select-time-scale"
+                value={timeScale}
+                label="Time Scale"
+                onChange={handleTimeScaleChange}
+                style={{ minWidth: "150px" }}
+              >
+                <MenuItem value="hour">Hour</MenuItem>
+                <MenuItem value="day">Day</MenuItem>
+                <MenuItem value="week">Week</MenuItem>
+                <MenuItem value="month">Month</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
       </Grid>
       <Box mt={4}>
-        <ChartComponent data={data} metric={metric} />
+        <ChartComponent data={data} metric={metric} timeScale={timeScale} />
       </Box>
     </Container>
   );

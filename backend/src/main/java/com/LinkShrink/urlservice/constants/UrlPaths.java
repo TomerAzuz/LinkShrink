@@ -21,6 +21,7 @@ public class UrlPaths {
     /* Authentication */
     public static final String SIGNUP = "/signup";
     public static final String LOGIN = "/login";
+    public static final String REFRESH_TOKEN = "/refresh";
     public static final String CODE = "/{code}";
     public static final String ACTIVATE_CODE = "/activate" + CODE;
     public static final String FORGOT_EMAIL = "/forgot/{email}";

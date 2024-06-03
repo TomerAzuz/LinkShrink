@@ -1,15 +1,36 @@
 import React from 'react';
-import { Bar, Pie, Line } from 'react-chartjs-2';
-import Chart from 'chart.js/auto';
+import { Bar, Pie } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend
+} from 'chart.js';
 import Box from '@mui/material/Box';
+import { format, parseISO, startOfWeek, startOfMonth } from 'date-fns';
 
-const ChartComponent = ({ data, metric }) => {
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+const ChartComponent = ({ data, metric, timeScale }) => {
   const colors = [
     '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66',
     '#FF66B2', '#66B2FF', '#FFDB66', '#66FFCC', '#B266FF', '#FF6666', '#66FF99',
     '#6699FF'
   ];
+
+  const groupBy = (data, getKey) => {
+    return data.reduce((result, item) => {
+      const key = getKey(item);
+      if (!result[key]) {
+        result[key] = 0;
+      }
+      result[key]++;
+      return result;
+    }, {});
+  };
 
   let chartData;
 
@@ -17,18 +38,11 @@ const ChartComponent = ({ data, metric }) => {
     case 'country':
     case 'deviceType':
     case 'browser': {
-      const counts = data.reduce((acc, cur) => {
-        const key = cur[metric];
-        if (key) {
-          acc[key] = (acc[key] || 0) + 1;
-        }
-        return acc;
-      }, {});
-    
-      const labels = Object.keys(counts);
-      const accessCounts = Object.values(counts);
-      const backgroundColors = labels.map((_, index) => colors[index & colors.length]);
-    
+      const groupedData = groupBy(data, item => item[metric]);
+      const labels = Object.keys(groupedData);
+      const accessCounts = Object.values(groupedData);
+      const backgroundColors = labels.map((_, index) => colors[index % colors.length]);
+
       chartData = {
         labels: labels,
         datasets: [{
@@ -39,50 +53,80 @@ const ChartComponent = ({ data, metric }) => {
           borderWidth: 1
         }]
       };
+
       return (
         <Box display="flex" justifyContent="center" mt={2}>
-          <Box maxWidth="600px">
+          <Box>
             <Pie data={chartData} />
           </Box>
         </Box>
       );
     }
     case 'accessTime': {
-      const accessTimes = data.map(entry => new Date(entry.accessTime).getHours());
-      const labels = Array.from(new Set(accessTimes)).sort();
-      const backgroundColors = labels.map((_, index) => colors[index & colors.length]);
-      const counts = labels.map(hour => accessTimes.filter(time => time === hour).length);
-    
+      let getKey;
+      switch (timeScale) {
+        case 'hour':
+          getKey = item => format(parseISO(item.accessTime), 'HH:00');
+          break;
+        case 'day':
+          getKey = item => format(parseISO(item.accessTime), 'yyyy-MM-dd');
+          break;
+        case 'week':
+          getKey = item => format(startOfWeek(parseISO(item.accessTime)), 'yyyy-MM-dd');
+          break;
+        case 'month':
+          getKey = item => format(startOfMonth(parseISO(item.accessTime)), 'yyyy-MM');
+          break;
+        default:
+          getKey = item => item.accessTime;
+      }
+
+      const groupedData = groupBy(data, getKey);
+      const labels = Object.keys(groupedData).sort();
+      const accessCounts = labels.map(label => groupedData[label]);
+      const backgroundColors = labels.map((_, index) => colors[index % colors.length]);
+
       chartData = {
-        labels: labels.map(hour => `${hour}:00-${hour + 1}:00`),
+        labels: labels,
         datasets: [{
-          label: 'Access Count By Hour',
-          data: counts,
+          label: `Access Count By ${timeScale}`,
+          data: accessCounts,
           backgroundColor: backgroundColors,
           borderColor: backgroundColors.map(color => color.replace('FF', 'AA')),
           borderWidth: 1
         }]
       };
+
       return (
-        <Box display="flex" justifyContent="center" mt={2}>
-         <Box maxWidth="400px">
-            <Bar data={chartData} />
-          </Box>
+      <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+        <Box width="600px" height="300px">
+        <Bar
+          data={chartData}
+          options={{
+            maintainAspectRatio: true,
+            responsive: true,
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top'
+              },
+            },
+            layout: {
+              padding: {
+                left: 50,
+                right: 50,
+                top: 20,
+                bottom: 20
+              }
+            }
+          }}
+        />
         </Box>
+      </Box>
       );
     }
     default:
-      chartData = {
-        labels: [],
-        datasets: []
-      };
-      return (
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Box maxWidth="400px">
-            <Pie data={chartData} />
-          </Box>
-        </Box>
-      );
+      return null;
   }
 };
 

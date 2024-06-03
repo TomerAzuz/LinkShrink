@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -17,11 +17,14 @@ const UrlInput = () => {
   const [loading, setLoading] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
 
-  const handleSubmit = async (values, { setSubmitting }, endpoint) => {
+  const actionTypes = ["shorten", "unshorten", "report"];
+
+  const handleSubmitUrl = async (values, { setSubmitting }, endpoint) => {
     setSubmitting(true);
     setLoading(true);
     try {
       const sanitizedUrl = validateUrl(values.url);
+      console.log(sanitizedUrl);
       const response = await RequestService.post(
         endpoint, { url: sanitizedUrl }, true);
         setResult(response);
@@ -41,24 +44,11 @@ const UrlInput = () => {
     setCurrentTab(newValue);
   };
 
-  const tabVariants = {
-    offscreen: {
-      y: 300
-    },
-    onscreen: {
-      y: 50,
-      transition: {
-        type: "spring",
-        bounce: 0.4,
-        duration: 0.8
-      }
-    }
-  };
-
   if (loading) return <Loader />;
   
   if (result) return (
     <UrlResult 
+      actionType={actionTypes[currentTab]}
       result={result}
       resetUrlInput={resetUrlInput} 
       loading={loading}
@@ -80,23 +70,20 @@ const UrlInput = () => {
         }
       }}
     >
-      <Box variants={tabVariants}>
-        <Tabs 
-          value={currentTab} 
-          onChange={handleChange}
-        >
+      <Box>
+        <Tabs value={currentTab} onChange={handleChange}>
           <Tab label="Shrink URL" value={0} />
           <Tab label="Unsrhink URL" value={1} />
           <Tab label="Report malicious URL" value={2} />
         </Tabs>
         <TabPanel value={currentTab} index={0}>
-          <UrlForm handleSubmit={handleSubmit} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
+          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
         </TabPanel>
         <TabPanel value={currentTab} index={1}>
-          <UrlForm handleSubmit={handleSubmit} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
+          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
         </TabPanel>
         <TabPanel value={currentTab} index={2}>
-          <UrlForm handleSubmit={handleSubmit} buttonLabel={"Report malicious URL"} endpoint={URL_REPORT} />
+          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report malicious URL"} endpoint={URL_REPORT} />
         </TabPanel>
       </Box>
     </Box>

@@ -22,16 +22,18 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login = () => {
-  const { login, loading } = useAuth();
+  const { login, user, loading } = useAuth();
 
   const handleLogin = async (values, resetForm) => {
     try {
-      const response = await login(values);
-      if (response && response.status === 200) {
-        resetForm();
-      }
+      await login(values);
+      const successMessage = user && user.fullName ? `Hello ${user.fullName}!` : "Logged in";
+      toast.success(successMessage);
     } catch (error) {
+      console.log(error);
       toast.error(error.response?.data?.message || "Unexpected error");
+    } finally {
+      resetForm();
     }
   };
 

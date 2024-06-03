@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
@@ -30,28 +32,38 @@ import java.util.*;
 
 @Service
 public class UrlService {
+
     private static final int SHORTCODE_LENGTH = 6;
     @Value("${server.url}")
     private String baseUrl;
+
     @Value("${spring.mail.username}")
     private String emailAddress;
+
     @Autowired
     private UrlRepository urlRepository;
+
     @Autowired
     private UrlMapper urlMapper;
+
     @Autowired
     private UserService userService;
+
     @Autowired
     private EmailService emailService;
+
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
     @Autowired
     private CustomUrlValidator customUrlValidator;
+
     @Autowired
     private ShortCodeValidator shortCodeValidator;
 
+
     public UrlMappingResponse createUrlMapping(String longUrl) {
-        if (!isValidUrl(longUrl)) {
+        if (!isValidUrl(longUrl, false)) {
             throw new InvalidUrlException("Invalid URL format");
         }
 
@@ -61,9 +73,9 @@ public class UrlService {
         return urlMapper.urlMappingToUrlMappingResponse(urlMapping);
     }
 
-    public List<UrlMappingResponse> viewAllUrlMappings() {
-        UserResponse user = userService.getCurrentUser();
-        List<UrlMapping> urlMappingList = urlRepository.findAllByCreatedBy(user.getId());
+    public Iterable<UrlMappingResponse> viewAllUrlMappings(Pageable pageable) {
+        Long userId = userService.getCurrentUser().getId();
+        Page<UrlMapping> urlMappingList = urlRepository.findAllByCreatedBy(userId, pageable);
 
         return urlMappingList
                 .stream()
@@ -88,9 +100,7 @@ public class UrlService {
         urlRepository.deleteById(id);
     }
 
-    public String generateQRCodeImage(String longUrl) {
-
-        String shortCode = generateShortCode();
+    public String generateQRCodeImage(String shortCode) {
         String shortUrl = baseUrl + "/" + shortCode;
 
         // Generate base64 QR code string
@@ -100,7 +110,13 @@ public class UrlService {
     }
 
     public void handleMaliciousUrl(String url) throws MessagingException {
-        if (!urlRepository.existsByLongUrl(url)) {
+        if (!isValidUrl(url, true)) {
+            throw new InvalidUrlException("Invalid URL format");
+        }
+
+        String shortCode = url.substring(url.lastIndexOf("/") + 1);
+
+        if (!urlRepository.existsByShortCode(shortCode)) {
             throw new UrlMappingNotFoundException("URL not found");
         }
         UserResponse user = userService.getCurrentUser();
@@ -113,6 +129,10 @@ public class UrlService {
     }
 
     public UrlDto unshortenUrl(String url) {
+        if (!isValidUrl(url, true)) {
+            throw new InvalidUrlException("Invalid URL format");
+        }
+
         String shortCode = extractShortCodeFromUrl(url);
         Optional<UrlMapping> optionalMapping = Optional.of(
                 urlRepository.findByShortCode(shortCode)
@@ -123,13 +143,16 @@ public class UrlService {
         return new UrlDto(urlMapping.getLongUrl());
     }
 
-    private boolean isValidUrl(String url) {
-        return customUrlValidator.isValid(url);
+    private boolean isValidUrl(String url, boolean isBaseUrl) {
+        boolean isValid = customUrlValidator.isValid(url);
+
+        return isBaseUrl ? isValid && url.startsWith(baseUrl)
+                         : isValid && !url.startsWith(baseUrl);
     }
 
     private UrlMapping constructUrlMapping(String longUrl) {
         String shortCode = generateShortCode();
-        String qrCodeData = generateQRCodeImage(longUrl);
+        String qrCodeData = generateQRCodeImage(shortCode);
         Date expirationDate = getExpirationDate();
         Long createdBy = userService.getCurrentUser().getId();
         String title = extractTitle(longUrl);

@@ -2,7 +2,7 @@ import React from 'react';
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-
+import Typography from "@mui/material/Typography";
 import Logo from "../../components/Logo/Logo";
 import { Link } from 'react-router-dom';
 
@@ -27,7 +27,9 @@ const LandingPage = () => {
         textAlign="center"
       >
         <Logo size={{ xs: "4rem", md: "6rem" }}/>
+        
         <Box mt={4}>
+        <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold', color: 'text.primary' }}>Get Started</Typography> {/* Updated styling for Get Started text */}
           <Button component={Link} to="/signup" sx={{ 
             bgcolor: 'primary.main', 
             color: 'white', 
@@ -46,6 +48,7 @@ const LandingPage = () => {
             color: 'white', 
             padding: '1rem 2rem',
             borderRadius: '5px',
+            fontWeight: 'bold',
             margin:"20px",
             '&:hover': {
               backgroundColor: 'primary.dark',

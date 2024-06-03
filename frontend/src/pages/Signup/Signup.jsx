@@ -32,9 +32,8 @@ const SignUpSchema = Yup.object().shape({
 const Signup = () => {
   const { register, loading } = useAuth();
 
-  const handleSignup = async (values, setStatus) => {
+  const handleSignup = async (values) => {
     try {
-      setStatus(null);
       await register(values);
     } catch (error) {
       toast.error(error.response?.data?.message || "Unexpected error");
@@ -50,9 +49,9 @@ const Signup = () => {
         <Formik
           initialValues={{ fullName: "", email: "", password: "", confirmPassword: "" }}
           validationSchema={SignUpSchema}
-          onSubmit={async (values, { setStatus }) => await handleSignup(values, setStatus)}
+          onSubmit={async (values) => await handleSignup(values)}
         >
-          {({ isSubmitting, status }) => (
+          {({ isSubmitting }) => (
             <Form>
               <Grid container justifyContent="center">
                 <Grid item xs={12}>
@@ -91,7 +90,7 @@ const Signup = () => {
                   />
                 </Grid>
                 <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
-                  <Grid item>
+                  <Grid item m={2}>
                     <Button 
                       type="submit" 
                       variant="contained" 
