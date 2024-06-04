@@ -16,7 +16,9 @@ import java.util.Date;
 @Data
 @Builder
 @Entity
-@Table(name = "analytics")
+@Table(name = "analytics", indexes = {
+        @Index(columnList = "url_mapping_id", name = "url_mapping_id_index")
+})
 public class UrlAnalytics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +30,7 @@ public class UrlAnalytics {
     @JsonIgnore
     private UrlMapping urlMapping;
 
+    @Temporal(TemporalType.TIMESTAMP)
     private Date accessTime;
 
     private String country;

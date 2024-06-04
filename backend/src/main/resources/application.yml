@@ -21,6 +21,18 @@ spring:
       maximum-pool-size: 5
   config:
     import: optional:file:src/main/resources/.env[.properties]
+  cache:
+    type: caffeine
+    cache-names: urlMappings, users
+    caffeine:
+      spec: maximumSize=500
+      expireAfterWrite: 10m
+      recordStats: true
+      writer:
+        expireAfterWrite:
+          users: 1d
+        expireAfterAccess:
+          urlMappings: 1d
   mail:
     host: smtp.gmail.com
     username: ${MAIL_USERNAME}

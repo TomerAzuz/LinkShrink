@@ -28,9 +28,6 @@ const Navbar = () => {
               <Button sx={{ color: "black" }} component={Link} to="/">
                 Home
               </Button>
-              <Button sx={{ color: "black" }} component={Link} to="/about">
-                About
-              </Button>
               <Divider orientation="vertical" flexItem />
               {user && user.active ? (
                 <>

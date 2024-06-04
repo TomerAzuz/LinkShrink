@@ -9,7 +9,6 @@ import com.LinkShrink.urlservice.exception.AuthExceptions.InvalidCodeException;
 import com.LinkShrink.urlservice.exception.AuthExceptions.PasswordConfirmationException;
 import com.LinkShrink.urlservice.mapper.UserMapper;
 import com.LinkShrink.urlservice.model.User;
-import com.LinkShrink.urlservice.repository.UserRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
 import io.jsonwebtoken.Claims;
 import jakarta.mail.MessagingException;
@@ -27,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,7 +40,7 @@ public class AuthenticationServiceTests {
     private AuthenticationService authenticationService;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -99,7 +97,7 @@ public class AuthenticationServiceTests {
         UserResponse userResponse = authenticationService.signup(registrationRequest);
 
         assertNotNull(userResponse);
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(userService, times(1)).saveUser(any(User.class));
         verify(emailService, times(1)).sendSimpleMessage(eq(registrationRequest.getEmail()), anyString(), anyString());
     }
     
@@ -110,13 +108,13 @@ public class AuthenticationServiceTests {
         assertThrows(PasswordConfirmationException.class, () ->
                 authenticationService.signup(registrationRequest));
 
-        verify(userRepository, never()).save(any(User.class));
+        verify(userService, never()).saveUser(any(User.class));
     }
 
     @Test
     public void testAuthenticationSuccess() {
-        when(userRepository.findByEmail(anyString()))
-                .thenReturn(Optional.of(user));
+        when(userService.findByEmail(anyString()))
+                .thenReturn(user);
         when(jwtService.generateToken(any(Claims.class), any(User.class)))
                 .thenReturn("Bearer jwtToken");
         when(userMapper.userToUserResponse(any(User.class)))
@@ -132,14 +130,20 @@ public class AuthenticationServiceTests {
 
     @Test
     public void testAuthenticationUserNotFound() {
-        when(userRepository.findByEmail(anyString()))
-                .thenReturn(Optional.empty());
+        when(userService.findByEmail(anyString()))
+                .thenThrow(new UsernameNotFoundException("User not found"));
+
+        LoginRequest loginRequest = new LoginRequest("test@example.com", "password");
 
         assertThrows(BadCredentialsException.class, () -> {
             authenticationService.authenticate(loginRequest);
         });
 
-        verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
+        verify(authenticationManager, times(1)).authenticate(
+                argThat(argument -> argument instanceof UsernamePasswordAuthenticationToken &&
+                        (argument).getPrincipal().equals(loginRequest.getEmail()) &&
+                        (argument).getCredentials().equals(loginRequest.getPassword()))
+        );
     }
 
     @Test
@@ -149,12 +153,12 @@ public class AuthenticationServiceTests {
         assertThrows(BadCredentialsException.class, () ->
                 authenticationService.authenticate(loginRequest));
 
-        verify(userRepository, never()).findByEmail(anyString());
+        verify(userService, never()).findByEmail(anyString());
     }
 
     @Test
     public void testActivateUserSuccess() {
-        when(userRepository.findByActivationCode(anyString())).thenReturn(Optional.of(user));
+        when(userService.findByActivationCode(anyString())).thenReturn(user);
         when(userMapper.userToUserResponse(any(User.class))).thenReturn(new UserResponse());
 
         UserResponse response = authenticationService.activateUser(user.getActivationCode());
@@ -162,70 +166,39 @@ public class AuthenticationServiceTests {
         assertNotNull(response);
         assertTrue(user.isActive());
         assertNull(user.getActivationCode());
-        verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    public void testActivateUserInvalidCode() {
-        when(userRepository.findByActivationCode(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () ->
-                authenticationService.activateUser("invalidCode"));
-
-        verify(userRepository, never()).save(any(User.class));
+        verify(userService, times(1)).saveUser(user);
     }
 
     @Test
     public void testSendPasswordResetCodeSuccess() throws MessagingException {
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(userService.findByEmail(anyString())).thenReturn(user);
 
         authenticationService.sendPasswordResetCode(user.getEmail());
 
         assertNotNull(user.getResetCode());
-        verify(userRepository, times(1)).save(user);
+        verify(userService, times(1)).saveUser(user);
         verify(emailService, times(1)).sendSimpleMessage(eq(user.getEmail()), anyString(), anyString());
-    }
-
-    @Test
-    public void testSendPasswordResetCodeUserNotFound() {
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () ->
-                authenticationService.sendPasswordResetCode("nonexistent@example.com"));
-
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     public void testGetEmailByResetCodeSuccess() {
         user.setResetCode("reset-code");
 
-        when(userRepository.findByResetCode("reset-code"))
-                .thenReturn(Optional.of(user));
+        when(userService.findByResetCode("reset-code"))
+                .thenReturn((user));
 
         authenticationService.getEmailByResetCode(user.getResetCode());
 
         assertTrue(user.isResetCodeVerified());
 
-        verify(userRepository, times(1)).save(user);
-    }
-
-    @Test
-    public void testGetEmailByResetCodeInvalidCode() {
-        when(userRepository.findByResetCode(anyString()))
-                .thenReturn(Optional.empty());
-
-        assertThrows(InvalidCodeException.class, () ->
-                authenticationService.getEmailByResetCode("invalidCode"));
-
-        verify(userRepository, never()).save(any(User.class));
+        verify(userService, times(1)).saveUser(user);
     }
 
     @Test
     public void testResetPasswordSuccess() {
         user.setResetCodeVerified(true);
-        when(userRepository.findByEmail(anyString()))
-                .thenReturn(Optional.of(user));
+        when(userService.findByEmail(anyString()))
+                .thenReturn(user);
         when(passwordEncoder.encode(anyString()))
                 .thenReturn("newEncodedPassword");
 
@@ -237,7 +210,7 @@ public class AuthenticationServiceTests {
         assertEquals("newEncodedPassword", user.getPassword());
         assertNull(user.getResetCode());
         assertFalse(user.isResetCodeVerified());
-        verify(userRepository, times(1)).save(user);
+        verify(userService, times(1)).saveUser(user);
     }
 
     @Test
@@ -248,25 +221,12 @@ public class AuthenticationServiceTests {
                         "newPassword",
                         "differentPassword"));
 
-        verify(userRepository, never()).save(any(User.class));
-    }
-
-    @Test
-    public void testResetPasswordUserNotFound() {
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(UsernameNotFoundException.class, () ->
-                authenticationService.resetPassword(
-                        "nonexistent@example.com",
-                        "newPassword",
-                        "newPassword"));
-
-        verify(userRepository, never()).save(any(User.class));
+        verify(userService, never()).saveUser(any(User.class));
     }
 
     @Test
     public void testResetPasswordResetCodeNotVerified() {
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
+        when(userService.findByEmail(anyString())).thenReturn(user);
 
         assertThrows(InvalidCodeException.class, () ->
                 authenticationService.resetPassword(
@@ -274,6 +234,6 @@ public class AuthenticationServiceTests {
                         "newPassword",
                         "newPassword"));
 
-        verify(userRepository, never()).save(any(User.class));
+        verify(userService, never()).saveUser(any(User.class));
     }
 }

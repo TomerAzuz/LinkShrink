@@ -20,8 +20,10 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
 @Entity
+@Table(name = "users", indexes = {
+        @Index(columnList = "email", name = "email_index")
+})
 public class User implements UserDetails {
 
     @Id

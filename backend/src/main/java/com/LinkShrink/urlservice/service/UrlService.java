@@ -17,6 +17,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,8 +33,8 @@ import java.util.*;
 
 @Service
 public class UrlService {
-
     private static final int SHORTCODE_LENGTH = 6;
+
     @Value("${server.url}")
     private String baseUrl;
 
@@ -61,7 +62,6 @@ public class UrlService {
     @Autowired
     private ShortCodeValidator shortCodeValidator;
 
-
     public UrlMappingResponse createUrlMapping(String longUrl) {
         if (!isValidUrl(longUrl, false)) {
             throw new InvalidUrlException("Invalid URL format");
@@ -83,6 +83,7 @@ public class UrlService {
                 .toList();
     }
 
+    @Cacheable(value = "urlMappings", key = "#p0")
     public UrlMappingResponse redirect(String shortCode, HttpServletRequest request) {
         if (!shortCodeValidator.isValidShortCode(shortCode) ||
                 !urlRepository.existsByShortCode(shortCode)) {
@@ -97,6 +98,10 @@ public class UrlService {
     }
 
     public void deleteUrlMapping(Long id) {
+        if (!urlRepository.existsById(id)) {
+            throw new UrlMappingNotFoundException("URL not found");
+        }
+
         urlRepository.deleteById(id);
     }
 

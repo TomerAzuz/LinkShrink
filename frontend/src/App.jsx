@@ -13,8 +13,6 @@ import MyLinks from "./pages/MyLinks/MyLinks";
 import Analytics from "./pages/Analytics/Analytics";
 import ActivateAccount from "./pages/ActivateAccount/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import VerifyResetCode from "./pages/VerifyResetCode/VerifyResetCode";
-import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import LandingPage from "./pages/LandingPage/LandingPage";
 import NotFound from "./pages/NotFound/NotFound";
 
@@ -29,8 +27,6 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot" element={<ForgotPassword />} />
-            <Route path="/verify" element={<VerifyResetCode />} />
-            <Route path="/reset" element={<ResetPassword />} />
             <Route path="/activate" element={<ActivateAccount />} />
             <Route path="/mylinks" element={<PrivateRoute component={MyLinks} />} />
             <Route path="/analytics" element={<PrivateRoute component={Analytics} />} />

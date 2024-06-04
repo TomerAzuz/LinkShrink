@@ -45,8 +45,10 @@ public class AnalyticsService {
         String ipAddress = request.getRemoteAddr();
         String country = getCountryFromIp(ipAddress);
         analytics.setCountry(country);
+
         String browser = getBrowser(userAgent);
         analytics.setBrowser(browser);
+
         String deviceType = getDeviceType(userAgent);
         analytics.setDeviceType(deviceType);
 
@@ -65,18 +67,6 @@ public class AnalyticsService {
     public List<UrlAnalytics> viewAllAnalytics() {
         UserResponse user = userService.getCurrentUser();
         return analyticsRepository.findAllByUrlMapping_CreatedBy(user.getId());
-    }
-
-    private Map<Long, List<UrlAnalytics>> aggregateByUrlId(List<List<UrlAnalytics>> allAnalytics) {
-        Map<Long, List<UrlAnalytics>> aggregatedData = new HashMap<>();
-        for (List<UrlAnalytics> analytics : allAnalytics) {
-            for (UrlAnalytics access : analytics) {
-                Long urlMappingId = access.getUrlMapping().getId();
-                aggregatedData.putIfAbsent(urlMappingId, new ArrayList<>());
-                aggregatedData.get(urlMappingId).add(access);
-            }
-        }
-        return aggregatedData;
     }
 
     private String getCountryFromIp(String ip) {
@@ -117,5 +107,17 @@ public class AnalyticsService {
         }
         DeviceType deviceType = UserAgent.parseUserAgentString(userAgent).getOperatingSystem().getDeviceType();
         return deviceType != null ? deviceType.getName() : "Unknown";
+    }
+
+    private Map<Long, List<UrlAnalytics>> aggregateByUrlId(List<List<UrlAnalytics>> allAnalytics) {
+        Map<Long, List<UrlAnalytics>> aggregatedData = new HashMap<>();
+        for (List<UrlAnalytics> analytics : allAnalytics) {
+            for (UrlAnalytics access : analytics) {
+                Long urlMappingId = access.getUrlMapping().getId();
+                aggregatedData.putIfAbsent(urlMappingId, new ArrayList<>());
+                aggregatedData.get(urlMappingId).add(access);
+            }
+        }
+        return aggregatedData;
     }
 }

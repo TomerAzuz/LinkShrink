@@ -34,7 +34,7 @@ public class SecurityConfig {
                                 .requiresSecure())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/v1/auth/**", "/{shortCode}").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/{shortCode}", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/users").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

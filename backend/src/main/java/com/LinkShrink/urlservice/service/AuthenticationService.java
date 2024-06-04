@@ -8,17 +8,13 @@ import com.LinkShrink.urlservice.exception.AuthExceptions.InvalidCodeException;
 import com.LinkShrink.urlservice.exception.AuthExceptions.PasswordConfirmationException;
 import com.LinkShrink.urlservice.mapper.UserMapper;
 import com.LinkShrink.urlservice.model.User;
-import com.LinkShrink.urlservice.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.stereotype.Service;
@@ -30,15 +26,20 @@ import java.util.UUID;
 @Service
 public class AuthenticationService {
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private UserService userService;
+
     @Autowired
     private EmailService emailService;
+
     @Autowired
     private UserMapper userMapper;
 
@@ -51,7 +52,7 @@ public class AuthenticationService {
             throw new PasswordConfirmationException("Passwords do not match");
         }
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (userService.existsByEmail(request.getEmail())) {
             throw new EmailExistsException("Email already exists");
         }
 
@@ -67,7 +68,7 @@ public class AuthenticationService {
                 .activationCode(activationCode)
                 .build();
 
-        userRepository.save(user);
+        userService.saveUser(user);
 
         // Send activation code
         String emailContent = String.format(
@@ -91,11 +92,10 @@ public class AuthenticationService {
                             userDto.getEmail(),
                             userDto.getPassword()));
 
-            User user = userRepository.findByEmail(userDto.getEmail())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            User user = userService.findByEmail(userDto.getEmail());
 
             if (!user.isActive()) {
-                throw new UsernameNotFoundException("Activation required");
+                throw new DisabledException("Activation required");
             }
 
             Claims claims = Jwts.claims().setSubject(user.getUsername());
@@ -121,8 +121,7 @@ public class AuthenticationService {
 
         UserDetails userDetails = jwtService.getUserDetailsFromToken(refreshToken);
         if (jwtService.isTokenValid(refreshToken, userDetails)) {
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            User user = userService.findByEmail(userDetails.getUsername());
 
             String jwtToken = jwtService.generateToken(user);
             return AuthResponse.builder()
@@ -138,24 +137,22 @@ public class AuthenticationService {
 
     @Transactional
     public UserResponse activateUser(String code) {
-        User user = userRepository.findByActivationCode(code)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.findByActivationCode(code);
 
         user.setActivationCode(null);
         user.setActive(true);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         return userMapper.userToUserResponse(user);
     }
 
     @Transactional
     public void sendPasswordResetCode(String email) throws MessagingException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.findByEmail(email);
 
         String resetCode = UUID.randomUUID().toString();
         user.setResetCode(resetCode);
-        userRepository.save(user);
+        userService.saveUser(user);
 
         String emailContent = String.format(
                 EmailTemplates.PASSWORD_RESET_TEMPLATE,
@@ -167,11 +164,10 @@ public class AuthenticationService {
 
     @Transactional
     public void getEmailByResetCode(String code) {
-        User user = userRepository.findByResetCode(code)
-                .orElseThrow(() -> new InvalidCodeException("Invalid reset code"));
+        User user = userService.findByResetCode(code);
 
         user.setResetCodeVerified(true);
-        userRepository.save(user);
+        userService.saveUser(user);
     }
 
     private boolean passwordsMatch(String password, String password2) {
@@ -184,8 +180,7 @@ public class AuthenticationService {
             throw new PasswordConfirmationException("Passwords do not match");
         }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userService.findByEmail(email);
 
         if (!user.isResetCodeVerified()) {
             throw new InvalidCodeException("Reset code not verified");
@@ -194,6 +189,6 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(password));
         user.setResetCode(null);
         user.setResetCodeVerified(false);
-        userRepository.save(user);
+        userService.saveUser(user);
     }
 }
