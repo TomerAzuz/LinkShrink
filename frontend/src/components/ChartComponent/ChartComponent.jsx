@@ -1,7 +1,7 @@
 import React from 'react';
 import { Bar, Pie } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
+import { 
+  Chart as ChartJS, 
   ArcElement,
   BarElement,
   CategoryScale,
@@ -46,7 +46,7 @@ const ChartComponent = ({ data, metric, timeScale }) => {
       chartData = {
         labels: labels,
         datasets: [{
-          label: `Access Count By ${metric}`,
+          label: `Access count by ${metric}`,
           data: accessCounts,
           backgroundColor: backgroundColors,
           borderColor: backgroundColors.map(color => color.replace('FF', 'AA')),
@@ -89,7 +89,7 @@ const ChartComponent = ({ data, metric, timeScale }) => {
       chartData = {
         labels: labels,
         datasets: [{
-          label: `Access Count By ${timeScale}`,
+          label: `Access count by ${timeScale}`,
           data: accessCounts,
           backgroundColor: backgroundColors,
           borderColor: backgroundColors.map(color => color.replace('FF', 'AA')),

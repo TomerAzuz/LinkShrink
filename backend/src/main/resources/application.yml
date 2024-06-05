@@ -49,6 +49,13 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    show-sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    placeholders:
+      admin_user_email: ${MAIL_USERNAME}
+      admin_password: $2a$10$i.7O7Ai2lIb28Ocz6pO1V.GwrxjD1uKXB.3r3VBABNdtc2CvHgjzG
 
 jwt:
   secret: 324221acef13bc948c21f0ec1bca9e54d793ba5f5d08e103e5215030d432c163

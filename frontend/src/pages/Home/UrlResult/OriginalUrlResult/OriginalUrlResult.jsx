@@ -1,7 +1,6 @@
 import React from 'react';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Link from "@mui/material/Link";
 import Button from "@mui/material/Button";
 import CopyLink from '../../../../components/CopyLink/CopyLink';
 
@@ -16,7 +15,7 @@ const OriginalUrlResult = ({ result, resetUrlInput }) => {
       <Typography variant="body1" align="center" paragraph>
         The original URL is:
       </Typography>
-      <CopyLink url={originalUrl}/>
+      <CopyLink url={originalUrl} variant="h6" />
       <Button onClick={resetUrlInput}>
         Unshorten another URL
       </Button>

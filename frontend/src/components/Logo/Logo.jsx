@@ -1,9 +1,10 @@
+import React from 'react';
 import { Link } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useTheme } from '@mui/material/styles';
 
-const Logo = ({size, isRedirect = false}) => {
+const Logo = ({ size, isRedirect = false }) => {
   const theme = useTheme();
 
   return (

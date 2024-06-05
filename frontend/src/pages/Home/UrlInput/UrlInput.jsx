@@ -24,12 +24,12 @@ const UrlInput = () => {
     setLoading(true);
     try {
       const sanitizedUrl = validateUrl(values.url);
-      console.log(sanitizedUrl);
       const response = await RequestService.post(
         endpoint, { url: sanitizedUrl }, true);
+
         setResult(response);
     } catch (error) {
-      toast.error("Error")
+      toast.error("Unexpected Error")
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -61,8 +61,9 @@ const UrlInput = () => {
         display: "flex", 
         flexDirection: "column", 
         textAlign: "center",
+        mt: 2,
         width: {
-          xs: "90%",
+          xs: "100%",
           sm: "70%", 
           md: "60%", 
           lg: "50%", 
@@ -70,22 +71,20 @@ const UrlInput = () => {
         }
       }}
     >
-      <Box>
-        <Tabs value={currentTab} onChange={handleChange}>
-          <Tab label="Shrink URL" value={0} />
-          <Tab label="Unsrhink URL" value={1} />
-          <Tab label="Report malicious URL" value={2} />
-        </Tabs>
-        <TabPanel value={currentTab} index={0}>
-          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
-        </TabPanel>
-        <TabPanel value={currentTab} index={1}>
-          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
-        </TabPanel>
-        <TabPanel value={currentTab} index={2}>
-          <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report malicious URL"} endpoint={URL_REPORT} />
-        </TabPanel>
-      </Box>
+    <Tabs value={currentTab} onChange={handleChange}>
+      <Tab label="Shrink URL" value={0} />
+      <Tab label="Unsrhink URL" value={1} />
+      <Tab label="Report malicious URL" value={2} />
+    </Tabs>
+    <TabPanel value={currentTab} index={0}>
+      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
+    </TabPanel>
+    <TabPanel value={currentTab} index={1}>
+      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
+    </TabPanel>
+    <TabPanel value={currentTab} index={2}>
+      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report malicious URL"} endpoint={URL_REPORT} />
+    </TabPanel>
     </Box>
   );
 };

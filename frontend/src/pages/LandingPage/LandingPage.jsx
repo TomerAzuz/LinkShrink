@@ -1,10 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+
 import Logo from "../../components/Logo/Logo";
-import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
   return (
@@ -29,7 +30,14 @@ const LandingPage = () => {
         <Logo size={{ xs: "4rem", md: "6rem" }}/>
         
         <Box mt={4}>
-        <Typography variant="h5" sx={{ mt: 2, fontWeight: 'bold', color: 'text.primary' }}>Get Started</Typography> {/* Updated styling for Get Started text */}
+        <Typography variant="h5" 
+          sx={{ mt: 2, 
+                fontWeight: 'bold', 
+                color: 'text.primary' 
+          }}
+        > 
+          Get Started
+        </Typography> 
           <Button component={Link} to="/signup" sx={{ 
             bgcolor: 'primary.main', 
             color: 'white', 

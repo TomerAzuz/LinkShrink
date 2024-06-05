@@ -1,13 +1,13 @@
-import { Link } from "react-router-dom";
+import React from 'react';
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
+import Divider from "@mui/material/Divider";
 
 import Logo from "../Logo/Logo";
+import NavButton from "../Buttons/NavButton";
 import { useAuth } from "../../AuthContext";
-import { Divider } from "@mui/material";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -16,7 +16,9 @@ const Navbar = () => {
     <AppBar 
       position="static" 
       elevation={0} 
-      sx={{ backgroundColor: "white", padding: "0 20px" }}
+      sx={{ backgroundColor: "white", 
+            padding: "0 20px" 
+          }}
     >
       <Toolbar>
         <Grid container justifyContent="space-between" alignItems="center">
@@ -25,27 +27,17 @@ const Navbar = () => {
           </Grid>
           <Grid item xs={12} sm={9}>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "14px" }}>
-              <Button sx={{ color: "black" }} component={Link} to="/">
-                Home
-              </Button>
+              <NavButton to="/">Home</NavButton>
               <Divider orientation="vertical" flexItem />
               {user && user.active ? (
                 <>
-                  <Button sx={{ color: "black" }} component={Link} to="/mylinks">
-                      My Links
-                    </Button>
-                  <Button sx={{ color: "black" }} onClick={logout}>
-                    Log out
-                  </Button>
+                   <NavButton to="/mylinks">My Links</NavButton>
+                   <NavButton onClick={logout}>Log out</NavButton>
                 </>
               ) : (
                 <>
-                  <Button sx={{ color: "black" }} component={Link} to="/login">
-                      Log in
-                    </Button>
-                  <Button sx={{ color: "black" }} component={Link} to="/signup">
-                    Sign up
-                  </Button>
+                  <NavButton to="/login">Log in</NavButton>
+                  <NavButton to="/signup">Sign up</NavButton>
                 </>
               )}
             </Box>

@@ -27,11 +27,26 @@ const AuthProvider = ({ children }) => {
         const response = await RequestService.get(USERS_ME, true);
         setUser(response.data);
       } catch (error) {
-        console.error("Unauthenticated user");
+        console.error("unauthenticated");
+        return;
       }
     };
+      if (!user) {
+        fetchUser();
+      }
+  }, []);
 
-      fetchUser();
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      Cookies.remove("REFRESH_TOKEN_KEY");
+      localStorage.removeItem("TOKEN_KEY");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
 
 
@@ -71,11 +86,11 @@ const AuthProvider = ({ children }) => {
     try {
       const refreshToken = Cookies.get("REFRESH_TOKEN_KEY");
       const response = await RequestService.post(AUTH_REFRESH, { refreshToken });
-      const { token, refreshToken: newRefreshToken } = response.data;
+      const { token: newToken, refreshToken: newRefreshToken } = response.data;
 
-      localStorage.setItem("TOKEN_KEY", token);
+      localStorage.setItem("TOKEN_KEY", newToken);
       Cookies.set("REFRESH_TOKEN_KEY", newRefreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
-      setToken(token);
+      setToken(newToken);
     } catch (error) {
       console.error("Failed to refresh token", error);
       logout();
@@ -86,6 +101,7 @@ const AuthProvider = ({ children }) => {
     const interval = setInterval(() => {
       if (token) {
         handleRefreshToken();
+        console.log("refresh token");
       }
     }, 3598000);
     

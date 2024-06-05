@@ -84,22 +84,22 @@ public class AuthenticationService {
         return userMapper.userToUserResponse(user);
     }
 
-    public AuthResponse authenticate(LoginRequest userDto) {
+    public AuthResponse authenticate(LoginRequest loginRequest) {
         try {
-
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            userDto.getEmail(),
-                            userDto.getPassword()));
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()));
 
-            User user = userService.findByEmail(userDto.getEmail());
+            User user = userService.findByEmail(loginRequest.getEmail());
 
             if (!user.isActive()) {
                 throw new DisabledException("Activation required");
             }
 
             Claims claims = Jwts.claims().setSubject(user.getUsername());
-            claims.put("role", Role.USER);
+            String role = user.getRoles().iterator().next().name();
+            claims.put("role", role);
 
             String jwtToken = jwtService.generateToken(claims, user);
             String refreshToken = jwtService.generateRefreshToken(user);
