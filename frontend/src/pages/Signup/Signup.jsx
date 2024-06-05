@@ -4,14 +4,13 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 
 import { useAuth } from "../../AuthContext";
 import FormField from "../../components/FormField/FormField";
-import Loader from "../../components/Loader/Loader";
+import AuthButton from '../../components/Buttons/AuthButton';
 
 const SignUpSchema = Yup.object().shape({
   fullName: Yup.string()
@@ -91,22 +90,18 @@ const Signup = () => {
                 </Grid>
                 <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
                   <Grid item m={2}>
-                    <Button 
+                    <AuthButton 
                       type="submit" 
-                      variant="contained" 
-                      disabled={isSubmitting}
-                    >
-                      Sign up
-                    </Button>
+                      text="Sign up" 
+                      disabled={isSubmitting} 
+                      sx={{ width: '100%' }}
+                    />
                   </Grid>
                   <Grid item>
                     <Typography align="center">
                       Already have an account? <Link to="/login">Login</Link>
                     </Typography>
                   </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  {loading && <Loader />}
                 </Grid>
               </Grid>            
             </Form>

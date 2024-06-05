@@ -39,7 +39,7 @@ const LinkDetailsItem = ({ link, deleteLink }) => {
         <FaviconDisplay url={longUrl} />
         <LinkDetails url={longUrl} title={title} />
         <Grid item sm={12} md={4}>
-          {viewQrCode ? <QrCodeCard imageUrl={base64QrCode} /> : 
+          {viewQrCode ? <QrCodeCard imageUrl={base64QrCode} size="small" /> : 
                         <CopyLink url={shortUrl} variant="body1" />}
         </Grid>
         <Grid item sm={4} md={1} justifyContent="center">
@@ -64,6 +64,7 @@ const LinkDetailsItem = ({ link, deleteLink }) => {
         onClick={() => deleteLink(id)}
         title={"Delete Link"}
         text={"Are you sure you want to permanently delete this link?"}
+        buttonText={"Delete"}
       />
     </Grid>
   );

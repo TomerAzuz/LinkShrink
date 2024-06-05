@@ -16,29 +16,30 @@ const Navbar = () => {
     <AppBar 
       position="static" 
       elevation={0} 
-      sx={{ backgroundColor: "white", 
-            padding: "0 20px" 
-          }}
+      sx={{ backgroundColor: "white", padding: "0 5px" }}
     >
       <Toolbar>
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item xs={12} sm={3}>
-          <Logo size={{ xs: "2rem", md: "3rem" }} isRedirect={true} />
+        <Grid container alignItems="center">
+          <Grid item xs={12} sm={6} md={3} 
+            textAlign={{ xs: "center", sm: "start" }}
+          > 
+            <Logo size={{ xs: "2rem", md: "3rem" }} isRedirect={true} />
           </Grid>
-          <Grid item xs={12} sm={9}>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "14px" }}>
+          <Grid item xs={12} sm={6} md={9}>
+            <Box 
+              display="flex"
+              sx={{ display: "flex", 
+                    justifyContent: { xs: "center", sm: "flex-end" }, 
+                    gap: "14px" 
+              }}> 
               <NavButton to="/">Home</NavButton>
               <Divider orientation="vertical" flexItem />
               {user && user.active ? (
-                <>
-                   <NavButton to="/mylinks">My Links</NavButton>
-                   <NavButton onClick={logout}>Log out</NavButton>
-                </>
+                <><NavButton to="/mylinks">My Links</NavButton>
+                   <NavButton onClick={logout}>Log out</NavButton></>
               ) : (
-                <>
-                  <NavButton to="/login">Log in</NavButton>
-                  <NavButton to="/signup">Sign up</NavButton>
-                </>
+                <><NavButton to="/login">Log in</NavButton>
+                  <NavButton to="/signup">Sign up</NavButton></>
               )}
             </Box>
           </Grid>

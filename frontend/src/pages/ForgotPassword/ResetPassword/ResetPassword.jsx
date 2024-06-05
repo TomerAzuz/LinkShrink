@@ -4,7 +4,6 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
@@ -12,6 +11,8 @@ import Grid from "@mui/material/Grid";
 import { useAuth } from "../../../AuthContext";
 import FormField from "../../../components/FormField/FormField";
 import Loader from "../../../components/Loader/Loader";
+import AuthButton from '../../../components/Buttons/AuthButton';
+import Title from "../../../components/Title/Title";
 
 const ResetPasswordSchema = Yup.object().shape({
   email: Yup.string()
@@ -47,9 +48,7 @@ const ResetPassword = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
-        <Typography variant="h4" align="center" gutterBottom fontWeight="bold">
-          Reset password
-        </Typography>
+        <Title text={"Reset password"}/>
         <Formik
           initialValues={{ email: "", password: "", confirmPassword: "" }}
           validationSchema={ResetPasswordSchema}
@@ -57,7 +56,7 @@ const ResetPassword = () => {
         >
           {({ isSubmitting }) => (
             <Form>
-              <Grid container justifyContent="center">
+              <Grid container spacing={2} justifyContent="center">
                 <Grid item xs={12}>
                   <Field 
                     name="email" 
@@ -85,19 +84,13 @@ const ResetPassword = () => {
                     component={FormField} 
                   />
                 </Grid>
-                <Grid item xs={12} container direction="column" alignItems="center" spacing={2}>
-                  <Grid item>
-                    <Button 
-                      type="submit" 
-                      variant="contained" 
-                      disabled={isSubmitting}
-                    >
-                      Reset password
-                    </Button>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  {loading && <Loader />}
+                <Grid item xs={12} container direction="column" alignItems="center">
+                  <AuthButton 
+                    type="submit" 
+                    text="Reset password" 
+                    disabled={isSubmitting} 
+                    sx={{ width: '100%' }}
+                  />
                 </Grid>
               </Grid>            
             </Form>

@@ -3,14 +3,14 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 
-import FormField from "../../components/FormField/FormField";
-import Loader from "../../components/Loader/Loader";
 import { useAuth } from "../../AuthContext";
+import FormField from "../../components/FormField/FormField";
+import AuthButton from '../../components/Buttons/AuthButton';
+import Title from "../../components/Title/Title";
 
 const ActivateAccountSchema = Yup.object().shape({
   activationCode: Yup.string()
@@ -18,7 +18,7 @@ const ActivateAccountSchema = Yup.object().shape({
 });
 
 const ActivateAccount = () => {
-  const { activateAccount, loading } = useAuth();
+  const { activateAccount } = useAuth();
 
   const handleActivate = async (activationCode, resetForm) => {
     try {
@@ -35,9 +35,7 @@ const ActivateAccount = () => {
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
-        <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-          Activate Account
-        </Typography>
+        <Title text={"Activate Account"} />
         <Typography variant="body1" align="center" paragraph>
           Please enter the activation code sent to your email to activate your account. 
           If you haven't received the code, check your spam folder or request a new code.
@@ -60,15 +58,13 @@ const ActivateAccount = () => {
                     component={FormField}
                   />
                 </Grid>
-                {loading && <Loader />}
                 <Grid item xs={12} container direction="column" alignItems="center">
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isSubmitting}
-                  >
-                    Activate
-                  </Button>
+                  <AuthButton 
+                    type="submit" 
+                    text="Activate" 
+                    disabled={isSubmitting} 
+                    sx={{ width: '100%' }}
+                  />
                 </Grid>
               </Grid>
             </Form>

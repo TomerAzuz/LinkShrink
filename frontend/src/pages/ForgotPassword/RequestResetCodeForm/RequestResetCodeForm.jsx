@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 
 import { useAuth } from "../../../AuthContext";
 import FormField from "../../../components/FormField/FormField";
+import AuthButton from '../../../components/Buttons/AuthButton';
+import Title from "../../../components/Title/Title";
 
 const PasswordResetSchema = Yup.object().shape({
   email: Yup.string()
@@ -46,18 +46,11 @@ const RequestResetCodeForm = ({ step, setStep }) => {
       }}
     >
       <Box textAlign="center" width="100%" mt={12}>
-        <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-          Reset your password
-        </Typography>
+        <Title text={"Reset your password"}/>
         <Typography variant="body1" align="center" paragraph>
           Enter your email address below, and we'll send you instructions on how to reset your password. 
           If you don't receive an email, please check your spam folder or request a new code.
         </Typography>
-        {isCodeSent && (
-          <Typography fontWeight="bold" variant="body1" align="center" color="success" paragraph>
-              A reset code has been sent to your email!
-          </Typography>
-        )}
         <Formik
           initialValues={{ email: "" }}
           validationSchema={PasswordResetSchema}
@@ -70,21 +63,20 @@ const RequestResetCodeForm = ({ step, setStep }) => {
               {isCodeSent ? (
                   <Grid item xs={12}>
                     <Box display="flex" justifyContent="center" alignItems="center">
-                      <Button 
-                        variant="contained" 
-                        sx={{ margin: 1 }}
+                      <AuthButton 
+                        type="submit" 
+                        text="Resend code" 
                         onClick={() => setIsCodeSent(false)}
-                      >
-                        Resend code
-                      </Button>
-                      <Button 
-                        variant="contained" 
-                        sx={{ margin: 1 }}
-                        component={Link} 
+                        disabled={isSubmitting} 
+                        m={1}
+                      />
+                      <AuthButton 
+                        type="submit" 
                         to="/verify"
-                      >
-                        Verify code
-                      </Button>
+                        text="Verify code" 
+                        disabled={isSubmitting} 
+                        m={1}
+                      />
                     </Box>
                   </Grid>
                 ) : (
@@ -98,20 +90,15 @@ const RequestResetCodeForm = ({ step, setStep }) => {
                       component={FormField} 
                     />
                   </Grid>
-                  <Grid item xs={12} 
-                    mt={2} 
-                    container 
-                    direction="column" 
-                    alignItems="center"
-                  >
-                  <Button 
-                    type="submit" 
-                    variant="contained" 
-                    disabled={isSubmitting}
-                  >
-                    Reset Password
-                  </Button>
-                </Grid>           
+                  <Grid item xs={12} mt={2} container direction="column" alignItems="center">
+                    <AuthButton 
+                      type="submit" 
+                      text="Reset password" 
+                      onClick={() => setIsCodeSent(false)}
+                      disabled={isSubmitting} 
+                      m={1}
+                      />
+                  </Grid>           
                 </>)}
               </Grid>
             </Form>

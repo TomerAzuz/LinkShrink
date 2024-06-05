@@ -22,10 +22,28 @@ const ShortenedUrlResult = ({ result, resetUrlInput }) => {
         Your URL has been successfully shortened. 
         You can now copy it, share it on social media, or use the QR code provided.
       </Typography>
-      <QrCodeCard imageUrl={imageUrl}/>
-      <CopyLink url={shortUrl} variant="h6" />
+      <Box m={4}>
+        <QrCodeCard imageUrl={imageUrl} size="medium" />
+      </Box>
+      <Box>
+        <CopyLink url={shortUrl} variant="h6" />
+      </Box>
       <SocialShareButtons shortUrl={shortUrl} />
-      <Button onClick={resetUrlInput}>Shorten another URL</Button>
+      <Button
+        onClick={resetUrlInput}
+        variant="contained"
+        sx={{
+          color: 'white',
+          backgroundColor: '#3f51b5',
+          padding: '10px 20px',
+          borderRadius: '8px',
+          '&:hover': {
+            backgroundColor: '#303f9f',
+          }
+        }}
+      >
+        <Typography variant="button">Shorten another URL</Typography>
+      </Button>
     </Box>
   );
 };

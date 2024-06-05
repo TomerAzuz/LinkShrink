@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
-const MaliciousUrlReportResult = ({ result, resetUrlInput }) => {
+const UrlReportResult = ({ result, resetUrlInput }) => {
   const reportStatus = result.status === 201 
     ? "Report submitted successfully" 
     : "Failed to submit report. Please try again.";
@@ -16,9 +16,9 @@ const MaliciousUrlReportResult = ({ result, resetUrlInput }) => {
       <Typography variant="body1" align="center" paragraph>
         {reportStatus}
       </Typography>
-      <Button onClick={resetUrlInput}>Report another URL</Button>
+      <Button onClick={resetUrlInput}><Typography variant="button">Report another URL</Typography></Button>
     </Box>
   );
 };
 
-export default MaliciousUrlReportResult;
+export default UrlReportResult;

@@ -6,7 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
-const CustomDialog = ({ isOpen, setIsOpen, onClick, title, text }) => (
+const CustomDialog = ({ isOpen, setIsOpen, onClick, title, text, buttonText }) => (
   <Dialog
     open={isOpen}
     onClose={() => setIsOpen(false)}
@@ -20,7 +20,7 @@ const CustomDialog = ({ isOpen, setIsOpen, onClick, title, text }) => (
     </DialogContent>
     <DialogActions>
       <Button onClick={() => setIsOpen(false)}>Cancel</Button>
-      <Button onClick={onClick}>Delete</Button>
+      <Button onClick={onClick}>{buttonText}</Button>
     </DialogActions>
   </Dialog>
 );

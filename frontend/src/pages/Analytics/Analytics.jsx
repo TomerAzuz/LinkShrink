@@ -11,6 +11,7 @@ import FormControl from "@mui/material/FormControl";
 import Grid from "@mui/material/Grid";
 
 import Loader from "../../components/Loader/Loader";
+import Title from "../../components/Title/Title";
 
 const Analytics = () => {
   const [metric, setMetric] = useState("country");
@@ -53,13 +54,13 @@ const Analytics = () => {
 
   return (
     <Container maxWidth="lg">
-      <Box my={4}>
-        <Typography variant="h2" align="center" gutterBottom>
-          Analytics Dashboard
-        </Typography>
+      <Box m={4}>
+      <Title text={"Analytics Dashboard"} variant={"h2"} textAlign="center" />
         <Typography variant="body1" align="center" paragraph>
-          Welcome to the analytics dashboard. Here you can explore various metrics related to user interactions with your service. 
-          Use the dropdown below to select different metrics such as country, device type, access time, and browser.
+          Welcome to the analytics dashboard. Here you can explore various metrics
+          related to user interactions with your service. Use the dropdown below to
+          select different metrics such as country, device type, access time, and
+          browser.
         </Typography>
       </Box>
       <Box mb={4}>

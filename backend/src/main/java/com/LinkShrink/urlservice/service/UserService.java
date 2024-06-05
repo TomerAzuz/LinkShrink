@@ -7,7 +7,6 @@ import com.LinkShrink.urlservice.mapper.UserMapper;
 import com.LinkShrink.urlservice.model.User;
 import com.LinkShrink.urlservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -49,7 +48,6 @@ public class UserService {
                 .toList();
     }
 
-    @Cacheable(value = "users", key = "#p0")
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() ->
                 new UsernameNotFoundException("User not found"));

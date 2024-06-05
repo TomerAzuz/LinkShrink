@@ -31,9 +31,7 @@ const AuthProvider = ({ children }) => {
         return;
       }
     };
-      if (!user) {
         fetchUser();
-      }
   }, []);
 
   useEffect(() => {
@@ -157,6 +155,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    console.log("logout")
     setUser(null);
     setToken("");
     Cookies.remove("REFRESH_TOKEN_KEY");

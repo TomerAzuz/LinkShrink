@@ -1,17 +1,17 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 
+import { useAuth } from "../../../AuthContext";
 import FormField from "../../../components/FormField/FormField";
 import Loader from "../../../components/Loader/Loader";
-import { useAuth } from "../../../AuthContext";
+import AuthButton from '../../../components/Buttons/AuthButton';
+import Title from "../../../components/Title/Title";
 
 const ResetCodeSchema = Yup.object().shape({
   resetCode: Yup.string()
@@ -19,7 +19,6 @@ const ResetCodeSchema = Yup.object().shape({
 });
 
 const VerifyResetCode = ({ step, setStep }) => {
-  const navigate = useNavigate();
   const { verifyResetCode, loading } = useAuth();
 
   const handleVerifyResetCode = async (values, resetForm) => {
@@ -39,9 +38,7 @@ const VerifyResetCode = ({ step, setStep }) => {
   return (
     <Container maxWidth="sm">
       <Box mt={8}>
-        <Typography variant="h4" align="center" fontWeight="bold" gutterBottom>
-          Verify password reset code
-        </Typography>
+        <Title text={"Verify password reset code"} />
         <Formik
           initialValues={{ resetCode: "" }}
           validationSchema={ResetCodeSchema}
@@ -60,15 +57,13 @@ const VerifyResetCode = ({ step, setStep }) => {
                     component={FormField}
                   />
                 </Grid>
-                {loading && <Loader />}
                 <Grid item xs={12} container direction="column" alignItems="center">
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={isSubmitting}
-                  >
-                    Verify code
-                  </Button>
+                  <AuthButton 
+                    type="submit" 
+                    text="Verify code" 
+                    disabled={isSubmitting} 
+                    sx={{ width: '100%' }}
+                  />                    
                 </Grid>
               </Grid>
             </Form>

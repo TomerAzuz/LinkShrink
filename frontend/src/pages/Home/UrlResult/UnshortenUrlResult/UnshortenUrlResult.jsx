@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import CopyLink from '../../../../components/CopyLink/CopyLink';
 
-const OriginalUrlResult = ({ result, resetUrlInput }) => {
+const UnshortenUrlResult = ({ result, resetUrlInput }) => {
   const originalUrl = result.data?.url || "";
 
   return (
@@ -17,10 +17,10 @@ const OriginalUrlResult = ({ result, resetUrlInput }) => {
       </Typography>
       <CopyLink url={originalUrl} variant="h6" />
       <Button onClick={resetUrlInput}>
-        Unshorten another URL
+        <Typography variant="button">Unshorten another URL</Typography>
       </Button>
     </Box>
   );
 };
 
-export default OriginalUrlResult;
+export default UnshortenUrlResult;

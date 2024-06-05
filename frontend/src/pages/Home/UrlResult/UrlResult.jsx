@@ -1,7 +1,7 @@
 import React from 'react';
 import ShortenedUrlResult from './ShortenedUrlResult/ShortenedUrlResult';
-import OriginalUrlResult from './OriginalUrlResult/OriginalUrlResult';
-import MaliciousUrlReportResult from './MaliciousUrlReportResult/MaliciousUrlReportResult';
+import OriginalUrlResult from './UnshortenUrlResult/UnshortenUrlResult';
+import UrlReportResult from './UrlReportResult/UrlReportResult';
 
 const UrlResult = ({ actionType, result, resetUrlInput }) => {
   switch (actionType) {
@@ -10,7 +10,7 @@ const UrlResult = ({ actionType, result, resetUrlInput }) => {
     case 'unshorten':
       return <OriginalUrlResult result={result} resetUrlInput={resetUrlInput} />;
     case 'report':
-      return <MaliciousUrlReportResult result={result} resetUrlInput={resetUrlInput} />;
+      return <UrlReportResult result={result} resetUrlInput={resetUrlInput} />;
     default:
       return null;  
   }

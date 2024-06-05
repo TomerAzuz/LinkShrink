@@ -8,7 +8,7 @@ const FormField = ({ label, type, field, form, autoComplete }) => {
   const errorText = touched[name] && errors[name];
 
   return (
-    <Box height={88}>
+    <Box>
       <TextField 
         {...field}
         label={label}

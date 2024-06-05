@@ -23,14 +23,12 @@ spring:
     import: optional:file:src/main/resources/.env[.properties]
   cache:
     type: caffeine
-    cache-names: urlMappings, users
+    cache-names: urlMappings
     caffeine:
       spec: maximumSize=500
       expireAfterWrite: 10m
       recordStats: true
       writer:
-        expireAfterWrite:
-          users: 1d
         expireAfterAccess:
           urlMappings: 1d
   mail:

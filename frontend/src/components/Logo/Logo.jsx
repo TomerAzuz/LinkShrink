@@ -8,24 +8,25 @@ const Logo = ({ size, isRedirect = false }) => {
   const theme = useTheme();
 
   return (
-    <Box>
+    <Box display="flex" justifyContent="flex-start">
       <Typography 
         variant="h1"
         sx={{ 
           fontSize: size.md,
           fontWeight: "bold",
-          color: "#fff",
           background: `linear-gradient(45deg, ${theme.palette.primary.main} 30%, ${theme.palette.secondary.main} 90%)`,
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
           userSelect: 'none',
-          padding: '10px',
+          padding: '10px', 
+          display: 'inline-block', 
           '@media (max-width: 768px)': {
             fontSize: size.xs,
+            padding: '8px',
           }
         }}
       >
-        {isRedirect ? <Link to="/">LinkShrink</Link> : "LinkShrink"}
+        {isRedirect ? <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>LinkShrink</Link> : "LinkShrink"}
       </Typography>
     </Box>
   );

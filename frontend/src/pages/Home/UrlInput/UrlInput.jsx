@@ -3,6 +3,9 @@ import { toast } from "react-hot-toast";
 import Box from "@mui/material/Box";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import ContentCutIcon from '@mui/icons-material/ContentCut';
+import UndoIcon from '@mui/icons-material/Undo';
+import ReportIcon from '@mui/icons-material/Report';
 
 import UrlResult from "../UrlResult/UrlResult";
 import RequestService from "../../../services/RequestService";
@@ -62,29 +65,30 @@ const UrlInput = () => {
         flexDirection: "column", 
         textAlign: "center",
         mt: 2,
-        width: {
-          xs: "100%",
-          sm: "70%", 
-          md: "60%", 
-          lg: "50%", 
-          xl: "40%",
-        }
+        width: { xs: "100%", sm: "70%", md: "60%", lg: "50%", xl: "40%" }
       }}
     >
-    <Tabs value={currentTab} onChange={handleChange}>
-      <Tab label="Shrink URL" value={0} />
-      <Tab label="Unsrhink URL" value={1} />
-      <Tab label="Report malicious URL" value={2} />
-    </Tabs>
-    <TabPanel value={currentTab} index={0}>
-      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
-    </TabPanel>
-    <TabPanel value={currentTab} index={1}>
-      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
-    </TabPanel>
-    <TabPanel value={currentTab} index={2}>
-      <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report malicious URL"} endpoint={URL_REPORT} />
-    </TabPanel>
+      <Tabs 
+        value={currentTab} 
+        variant="scrollable" 
+        scrollButtons
+        onChange={handleChange} 
+        textColor="primary" 
+        indicatorColor="primary"
+      >
+        <Tab icon={<ContentCutIcon />}label="Shrink URL" value={0} aria-label="shrink" />
+        <Tab icon={<UndoIcon />}label="Unsrhink URL" value={1} aria-label="unshrink" />
+        <Tab icon={<ReportIcon />} label="Report URL" value={2} aria-label="report" />
+      </Tabs>
+      <TabPanel value={currentTab} index={0}>
+        <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
+      </TabPanel>
+      <TabPanel value={currentTab} index={1}>
+        <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
+      </TabPanel>
+      <TabPanel value={currentTab} index={2}>
+        <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report URL"} endpoint={URL_REPORT} />
+      </TabPanel>
     </Box>
   );
 };
