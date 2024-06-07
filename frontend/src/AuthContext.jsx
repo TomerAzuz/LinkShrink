@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState, useEffect } from "react";
+import React, { useContext, createContext, useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -20,6 +20,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("TOKEN_KEY"));
   const [loading, setLoading] = useState(false);
+  const refreshIntervalRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -31,22 +32,9 @@ const AuthProvider = ({ children }) => {
         return;
       }
     };
-        fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      Cookies.remove("REFRESH_TOKEN_KEY");
-      localStorage.removeItem("TOKEN_KEY");
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
     
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
+    fetchUser();
   }, []);
-
 
   const register = async (authRequest) => {
     setLoading(true);
@@ -65,12 +53,17 @@ const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await RequestService.post(AUTH_LOGIN, authRequest);
-      const { token, refreshToken } = response.data;
+      const { token, refreshToken, expiresIn } = response.data;
       setUser(response.data.user);
 
       localStorage.setItem("TOKEN_KEY", token);
       setToken(token);
       Cookies.set("REFRESH_TOKEN_KEY", refreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
+
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+      refreshIntervalRef.current = setInterval(handleRefreshToken, expiresIn - 60000);
       
       navigate("/");
     } catch (error) {
@@ -84,27 +77,21 @@ const AuthProvider = ({ children }) => {
     try {
       const refreshToken = Cookies.get("REFRESH_TOKEN_KEY");
       const response = await RequestService.post(AUTH_REFRESH, { refreshToken });
-      const { token: newToken, refreshToken: newRefreshToken } = response.data;
+      const { token: newToken, refreshToken: newRefreshToken, expiresIn } = response.data;
 
       localStorage.setItem("TOKEN_KEY", newToken);
       Cookies.set("REFRESH_TOKEN_KEY", newRefreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
       setToken(newToken);
+
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+      refreshIntervalRef.current = setInterval(handleRefreshToken, expiresIn - 60000); 
     } catch (error) {
       console.error("Failed to refresh token", error);
       logout();
     }
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (token) {
-        handleRefreshToken();
-        console.log("refresh token");
-      }
-    }, 3598000);
-    
-    return () => clearInterval(interval);
-  }, [token]);
 
   const activateAccount = async (code) => {
     setLoading(true);  
@@ -155,11 +142,13 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    console.log("logout")
     setUser(null);
     setToken("");
     Cookies.remove("REFRESH_TOKEN_KEY");
     localStorage.removeItem("TOKEN_KEY");
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
     navigate("/login");
   };
 

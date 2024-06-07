@@ -4,19 +4,21 @@ import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Divider from "@mui/material/Divider";
+import { useTheme } from '@mui/material/styles';
 
 import Logo from "../Logo/Logo";
 import NavButton from "../Buttons/NavButton";
 import { useAuth } from "../../AuthContext";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { token, logout } = useAuth();
+  const theme = useTheme();
 
   return (
     <AppBar 
       position="static" 
-      elevation={0} 
-      sx={{ backgroundColor: "white", padding: "0 5px" }}
+      elevation={3} 
+      sx={{ backgroundColor: theme.palette.background.paper, padding: "0 5px" }}
     >
       <Toolbar>
         <Grid container alignItems="center">
@@ -28,19 +30,20 @@ const Navbar = () => {
           <Grid item xs={12} sm={6} md={9}>
             <Box 
               display="flex"
-              sx={{ display: "flex", 
-                    justifyContent: { xs: "center", sm: "flex-end" }, 
-                    gap: "14px" 
-              }}> 
+              gap="14px" 
+              sx={{ justifyContent: { xs: "center", sm: "flex-end" } }}
+            > 
               <NavButton to="/">Home</NavButton>
               <Divider orientation="vertical" flexItem />
-              {user && user.active ? (
-                <><NavButton to="/mylinks">My Links</NavButton>
-                   <NavButton onClick={logout}>Log out</NavButton></>
-              ) : (
-                <><NavButton to="/login">Log in</NavButton>
-                  <NavButton to="/signup">Sign up</NavButton></>
-              )}
+              {token ? (
+                <>
+                  <NavButton to="/mylinks">My Links</NavButton>
+                  <NavButton onClick={logout}>Log out</NavButton>
+                </> ) : (
+                <>
+                  <NavButton to="/login">Log in</NavButton>
+                  <NavButton to="/signup">Sign up</NavButton>
+                </>)}
             </Box>
           </Grid>
         </Grid>

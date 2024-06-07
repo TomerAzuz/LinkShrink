@@ -1,20 +1,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { toBeInTheDocument, toHaveAttribute } from '@testing-library/jest-dom/matchers';
+import { toBeInTheDocument } from '@testing-library/jest-dom/matchers';
 
 import Navbar from './Navbar';
 import { useAuth } from '../../AuthContext';
 
-expect.extend({ toBeInTheDocument, toHaveAttribute });
+expect.extend({ toBeInTheDocument });
 
 jest.mock('../../AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
 describe('Navbar', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders correctly for unauthenticated user', () => {
-    useAuth.mockReturnValue({ user: null, logout: jest.fn() });
+    useAuth.mockReturnValue({ token: null, logout: jest.fn() });
     render(
       <MemoryRouter>
         <Navbar />
@@ -26,7 +30,7 @@ describe('Navbar', () => {
   });
 
   it('renders correctly for authenticated user', () => {
-    useAuth.mockReturnValue({ user: { active: true }, logout: jest.fn() });
+    useAuth.mockReturnValue({ token: 'fakeToken', logout: jest.fn() });
     render(
       <MemoryRouter>
         <Navbar />

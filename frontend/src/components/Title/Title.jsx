@@ -3,6 +3,7 @@ import Typography from '@mui/material/Typography';
 
 const Title = ({ text, variant = 'h4', color = '#333', ...props }) => (
   <Typography
+    align="center"
     variant={variant}
     color={color}
     fontWeight="bold"

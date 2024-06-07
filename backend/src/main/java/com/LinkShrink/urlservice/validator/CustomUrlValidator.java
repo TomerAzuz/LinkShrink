@@ -20,5 +20,4 @@ public class CustomUrlValidator extends UrlValidator {
         }
         return super.isValid("https://" + url);
     }
-
 }

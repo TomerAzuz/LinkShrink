@@ -21,7 +21,7 @@ const MyLinks = () => {
   const [links, setLinks] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [reachedEnd, setReachedEnd] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const deleteLink = async (id) => {
     try {
@@ -39,7 +39,6 @@ const MyLinks = () => {
   useEffect(() => {
     const getLinks = async () => {
       try {
-        setLoading(true);
         const response = await RequestService.get(`${URL_MYLINKS}?page=${currentPage}`, true);
         if (!response?.data?.length === 0) {
           setReachedEnd(true);
@@ -58,7 +57,7 @@ const MyLinks = () => {
         setLoading(false);
       }
     };
-    if (!reachedEnd && !loading) {
+    if (!reachedEnd) {
       getLinks(currentPage);
     }
 
@@ -79,6 +78,9 @@ const MyLinks = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  if (loading) {
+    return <Loader />
+  }
 
   if (reachedEnd && links.length === 0) 
     return <EmptyLinks />;
@@ -100,7 +102,7 @@ const MyLinks = () => {
         </Button>
       </Box>
       <Grid container spacing={2}>
-        {links.slice().reverse().map((link) => (
+        {links.map((link) => (
           <LinkDetailsItem 
             key={link.id} 
             link={link} 

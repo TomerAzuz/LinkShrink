@@ -6,6 +6,7 @@ import Tab from "@mui/material/Tab";
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 import UndoIcon from '@mui/icons-material/Undo';
 import ReportIcon from '@mui/icons-material/Report';
+import { useTheme } from '@mui/material/styles';
 
 import UrlResult from "../UrlResult/UrlResult";
 import RequestService from "../../../services/RequestService";
@@ -21,6 +22,7 @@ const UrlInput = () => {
   const [currentTab, setCurrentTab] = useState(0);
 
   const actionTypes = ["shorten", "unshorten", "report"];
+  const theme = useTheme();
 
   const handleSubmitUrl = async (values, { setSubmitting }, endpoint) => {
     setSubmitting(true);
@@ -30,7 +32,7 @@ const UrlInput = () => {
       const response = await RequestService.post(
         endpoint, { url: sanitizedUrl }, true);
 
-        setResult(response);
+      setResult(response);
     } catch (error) {
       toast.error("Unexpected Error")
     } finally {
@@ -65,7 +67,11 @@ const UrlInput = () => {
         flexDirection: "column", 
         textAlign: "center",
         mt: 2,
-        width: { xs: "100%", sm: "70%", md: "60%", lg: "50%", xl: "40%" }
+        width: { xs: "100%", sm: "70%", md: "60%", lg: "50%", xl: "40%" },
+        bgcolor: theme.palette.background.paper,
+        p: 3,
+        borderRadius: 2,
+        boxShadow: theme.shadows[3],
       }}
     >
       <Tabs 
@@ -75,16 +81,17 @@ const UrlInput = () => {
         onChange={handleChange} 
         textColor="primary" 
         indicatorColor="primary"
+        sx={{ mb: 2 }}
       >
         <Tab icon={<ContentCutIcon />}label="Shrink URL" value={0} aria-label="shrink" />
-        <Tab icon={<UndoIcon />}label="Unsrhink URL" value={1} aria-label="unshrink" />
+        <Tab icon={<UndoIcon />}label="Unshrink URL" value={1} aria-label="unshrink" />
         <Tab icon={<ReportIcon />} label="Report URL" value={2} aria-label="report" />
       </Tabs>
       <TabPanel value={currentTab} index={0}>
         <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Shrink URL"} endpoint={URL_SHORTEN} />
       </TabPanel>
       <TabPanel value={currentTab} index={1}>
-        <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unsrhink URL"} endpoint={URL_UNSHORTEN} />
+        <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Unshrink URL"} endpoint={URL_UNSHORTEN} />
       </TabPanel>
       <TabPanel value={currentTab} index={2}>
         <UrlForm handleSubmit={handleSubmitUrl} buttonLabel={"Report URL"} endpoint={URL_REPORT} />

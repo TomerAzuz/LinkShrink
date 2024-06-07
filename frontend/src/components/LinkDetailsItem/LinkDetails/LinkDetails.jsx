@@ -5,11 +5,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
 const LinkDetails = ({ url, title }) => (
-  <Grid item sm={10} md={3} 
-    display="flex" 
-    flexDirection="column" 
-    maxWidth="200px"
-  >
+  <>
     <Tooltip title={title}>
       <Typography 
         variant="body1" 
@@ -42,7 +38,7 @@ const LinkDetails = ({ url, title }) => (
     >
       {url}
     </Typography>
-  </Grid>
+    </>
 );
 
 export default LinkDetails;

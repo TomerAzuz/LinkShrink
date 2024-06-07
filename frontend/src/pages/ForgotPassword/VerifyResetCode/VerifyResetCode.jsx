@@ -3,13 +3,12 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { toast } from 'react-hot-toast';
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import Typography from "@mui/material/Typography";
 
 import { useAuth } from "../../../AuthContext";
 import FormField from "../../../components/FormField/FormField";
-import Loader from "../../../components/Loader/Loader";
 import AuthButton from '../../../components/Buttons/AuthButton';
 import Title from "../../../components/Title/Title";
 
@@ -39,6 +38,10 @@ const VerifyResetCode = ({ step, setStep }) => {
     <Container maxWidth="sm">
       <Box mt={8}>
         <Title text={"Verify password reset code"} />
+        <Typography variant="body1" gutterBottom paragraph>
+          Please enter the reset code you received in your email below to verify your identity
+          and proceed with resetting your password.
+        </Typography>
         <Formik
           initialValues={{ resetCode: "" }}
           validationSchema={ResetCodeSchema}

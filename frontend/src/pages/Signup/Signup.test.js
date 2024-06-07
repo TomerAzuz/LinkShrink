@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { Formik } from 'formik';
 import { toast } from 'react-hot-toast';
 import Signup from './Signup';
 import { useAuth } from '../../AuthContext';
@@ -23,17 +22,21 @@ describe('Signup Component', () => {
     });
   });
 
-  test('renders Signup component', () => {
+  test('renders Signup component', async () => {
     render(
       <BrowserRouter>
         <Signup />
       </BrowserRouter>
     );
+
     expect(screen.getByText(/Create an account/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Full name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
+      fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
+    });
   });
 
   test('validates form inputs', async () => {
@@ -43,7 +46,9 @@ describe('Signup Component', () => {
       </BrowserRouter>
     );
 
-    fireEvent.click(screen.getByText(/Sign up/i));
+    await act(async () => {
+      fireEvent.click(screen.getByText(/Sign up/i));
+    });
 
     await waitFor(() => {
       expect(screen.getByText(/Full name is required/i)).toBeInTheDocument();
@@ -60,11 +65,13 @@ describe('Signup Component', () => {
       </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: 'John Doe' } });
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByText(/Sign up/i));
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: 'John Doe' } });
+      fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+      fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
+      fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
+      fireEvent.click(screen.getByText(/Sign up/i));
+    });
 
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({
@@ -92,11 +99,13 @@ describe('Signup Component', () => {
       </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: 'John Doe' } });
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
-    fireEvent.click(screen.getByText(/Sign up/i));
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: 'John Doe' } });
+      fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
+      fireEvent.change(screen.getByLabelText('Password', { selector: 'input' }), { target: { value: 'password123' } });
+      fireEvent.change(screen.getByLabelText('Confirm password', { selector: 'input' }), { target: { value: 'password123' } });
+      fireEvent.click(screen.getByText(/Sign up/i));
+    });
 
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({

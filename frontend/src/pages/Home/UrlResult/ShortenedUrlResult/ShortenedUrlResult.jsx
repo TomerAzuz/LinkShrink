@@ -1,20 +1,31 @@
-import React from "react";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
+import React from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 
 import { qrCodeToBase64 } from "../../../../utils/qrCodeToBase64";
 import QrCodeCard from "../../../../components/QrCodeCard/QrCodeCard";
 import CopyLink from "../../../../components/CopyLink/CopyLink";
 import SocialShareButtons from "../../../../components/Buttons/SocialShareButtons";
+import ResultButton from "../../../../components/Buttons/ResultButton";
 
 const ShortenedUrlResult = ({ result, resetUrlInput }) => {  
+  const theme = useTheme();
   const shortUrl = result.data?.shortUrl || "";
-  
   const imageUrl = qrCodeToBase64(result?.data?.qrCodeData) || "";
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center">
+    <Box 
+      display="flex" 
+      flexDirection="column" 
+      alignItems="center"
+      sx={{ 
+        bgcolor: theme.palette.background.paper, 
+        p: 3, 
+        borderRadius: 2, 
+        boxShadow: theme.shadows[3], 
+      }}
+    >
       <Typography variant="h4" align="center" gutterBottom mt={2}>
         URL Shortener Result
       </Typography>
@@ -29,21 +40,9 @@ const ShortenedUrlResult = ({ result, resetUrlInput }) => {
         <CopyLink url={shortUrl} variant="h6" />
       </Box>
       <SocialShareButtons shortUrl={shortUrl} />
-      <Button
-        onClick={resetUrlInput}
-        variant="contained"
-        sx={{
-          color: 'white',
-          backgroundColor: '#3f51b5',
-          padding: '10px 20px',
-          borderRadius: '8px',
-          '&:hover': {
-            backgroundColor: '#303f9f',
-          }
-        }}
-      >
-        <Typography variant="button">Shorten another URL</Typography>
-      </Button>
+      <ResultButton onClick={resetUrlInput}>
+        Shorten another URL
+      </ResultButton>
     </Box>
   );
 };

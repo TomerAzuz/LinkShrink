@@ -25,7 +25,6 @@ const ActivateAccount = () => {
       await activateAccount(activationCode);
       toast.success("Account activated");
     } catch (error) {
-      console.log(error);
       toast.error("Account activation failed");
     } finally {
       resetForm();

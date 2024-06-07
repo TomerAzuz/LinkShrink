@@ -14,7 +14,6 @@ const LandingPage = () => (
       flexDirection: 'column', 
       justifyContent: 'center', 
       alignItems: 'center', 
-      bgcolor: 'background.default', 
       padding: '2rem'
     }}
   >
