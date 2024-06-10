@@ -13,8 +13,7 @@ const NavButton = ({ to, children, onClick }) => {
         color: theme.palette.text.primary, 
         borderColor: theme.palette.primary.main,
         '&:hover': {
-          backgroundColor: theme.palette.primary.light,
-          color: theme.palette.primary.contrastText,
+          boxShadow: theme.shadows[0],
         }
       }} 
       component={Link} 

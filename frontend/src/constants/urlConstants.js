@@ -1,4 +1,9 @@
-export const BASE_URL = "http://localhost:5173";
+export const ENVIRONMENT = import.meta.env.MODE;
+
+export const BASE_URL = import.meta.env.VITE_ENV === "dev"
+    ? "http://localhost:9000" 
+    : "https://l-1.me";
+
 export const API_BASE_URL = BASE_URL + "/api/v1";
 
 /* Authentication */

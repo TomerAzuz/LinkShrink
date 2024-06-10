@@ -18,7 +18,7 @@ const ResetCodeSchema = Yup.object().shape({
 });
 
 const VerifyResetCode = ({ step, setStep }) => {
-  const { verifyResetCode, loading } = useAuth();
+  const { verifyResetCode } = useAuth();
 
   const handleVerifyResetCode = async (values, resetForm) => {
     try {
@@ -38,7 +38,7 @@ const VerifyResetCode = ({ step, setStep }) => {
     <Container maxWidth="sm">
       <Box mt={8}>
         <Title text={"Verify password reset code"} />
-        <Typography variant="body1" gutterBottom paragraph>
+        <Typography variant="body1" align="center" gutterBottom>
           Please enter the reset code you received in your email below to verify your identity
           and proceed with resetting your password.
         </Typography>

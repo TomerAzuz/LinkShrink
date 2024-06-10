@@ -47,7 +47,7 @@ const RequestResetCodeForm = ({ step, setStep }) => {
     >
       <Box textAlign="center" width="100%" mt={12}>
         <Title text={"Reset your password"}/>
-        <Typography variant="body1" align="center" paragraph>
+        <Typography variant="body1" align="center" gutterBottom>
           Enter your email address below, and we'll send you instructions on how to reset your password. 
           If you don't receive an email, please check your spam folder or request a new code.
         </Typography>

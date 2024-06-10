@@ -12,7 +12,7 @@ const EmptyLinks = () => (
     m={8} 
     p={2}
   >
-    <Typography variant="h3" gutterBottom align="center">No Links yet</Typography>
+    <Typography variant="h5" gutterBottom align="center">No Links yet</Typography>
     <Typography variant="body1" align="center" paragraph>
       Go to <Link to="/">Home</Link> and generate your shortened link and QR code
     </Typography>

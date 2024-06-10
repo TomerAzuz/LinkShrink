@@ -10,6 +10,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.io.IOException;
 import java.time.Duration;
 
 @Component
@@ -26,11 +27,13 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
     public boolean preHandle(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull Object handler) {
+            @NonNull Object handler) throws IOException {
         if (bucket.tryConsume(1)) {
             return true;
         } else {
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            int status = HttpStatus.TOO_MANY_REQUESTS.value();
+            response.setStatus(status);
+            response.sendRedirect("/app/error/" + status);
             return false;
         }
     }

@@ -4,14 +4,11 @@ import { useAuth } from "../AuthContext";
 import Loader from "../components/Loader/Loader";
 
 const PrivateRoute = ({ component: Component }) => {
-  const { user, token, loading } = useAuth();
+  const { token, loading } = useAuth();
+
 
   if (loading) {
     return <Loader />;
-  }
-
-  if (user && !user.active) {
-    return <Navigate to="/activate" />;
   }
 
   if (!token) {

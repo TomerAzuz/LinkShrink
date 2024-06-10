@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { toBeInTheDocument, toHaveAttribute } from '@testing-library/jest-dom/matchers';
 import { TextField } from '@mui/material';
 import FormField from './FormField'; 
@@ -71,5 +71,31 @@ describe('FormField Component', () => {
       />
     );
     expect(screen.queryByText('Test error')).not.toBeInTheDocument();
+  });
+
+  test('toggles password visibility when the type is password', () => {
+    render(
+      <FormField
+        label="Password"
+        type="password"
+        field={fieldProps}
+        form={{ touched: {}, errors: {} }}
+        autoComplete="new-password"
+      />
+    );
+
+    const passwordField = screen.getByLabelText('Password');
+    expect(passwordField).toHaveAttribute('type', 'password');
+
+    const toggleButton = screen.getByRole('button');
+    act(() => {
+      toggleButton.click();
+    });
+    expect(passwordField).toHaveAttribute('type', 'text');
+
+    act(() => {
+      toggleButton.click();
+    });
+    expect(passwordField).toHaveAttribute('type', 'password');
   });
 });

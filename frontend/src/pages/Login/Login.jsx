@@ -30,7 +30,6 @@ const Login = () => {
       const successMessage = user && user.fullName ? `Hello ${user.fullName}!` : "Logged in!";
       toast.success(successMessage);
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Unexpected error");
     } finally {
       resetForm();

@@ -48,7 +48,7 @@ const ResetPassword = () => {
     <Container maxWidth="sm">
       <Box mt={8}>
         <Title text={"Reset password"}/>
-        <Typography variant="body1" gutterBottom>
+        <Typography variant="body1" gutterBottom align="center">
           To reset your password, please enter your email address and create a new password below.
         </Typography>
         <Formik

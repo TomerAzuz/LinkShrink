@@ -1,6 +1,6 @@
 server:
   port: 9000
-  url: "http://localhost:9000"
+  url: "https://l-1.me"
   tomcat:
     connection-timeout: 2s
     keep-alive-timeout: 15s
@@ -21,8 +21,6 @@ spring:
       maximum-pool-size: 5
   config:
     import: optional:file:src/main/resources/.env[.properties]
-  mvc:
-    static-path-pattern: /app/**
   cache:
     type: caffeine
     cache-names: urlMappings
@@ -42,23 +40,23 @@ spring:
     properties:
       mail:
         smtp:
-            auth: true
-            starttls:
-              enable: false
+          auth: true
+          starttls:
+            enable: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
   flyway:
     enabled: true
     locations: classpath:db/migration
     placeholders:
       admin_user_email: ${ADMIN_EMAIL}
-      admin_password: ${ADMIN_PASSWORD_DEV}
+      admin_password: ${ADMIN_PASSWORD_PROD}
 
 jwt:
-  secret: ${JWT_SECRET_DEV}
+  secret:
   expiration-time: 3600000 # 1 hour
   refresh:
     expiration-time: 604800000 # 7 days

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -138,7 +137,6 @@ public class UrlServiceTests {
         String shortCode = "abc123";
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(shortCodeValidator.isValidShortCode(shortCode)).thenReturn(true);
-        when(urlRepository.existsByShortCode(shortCode)).thenReturn(true);
 
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setShortCode(shortCode);

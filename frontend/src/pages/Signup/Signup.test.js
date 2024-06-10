@@ -5,6 +5,10 @@ import { toast } from 'react-hot-toast';
 import Signup from './Signup';
 import { useAuth } from '../../AuthContext';
 
+jest.mock('../../constants/urlConstants', () => ({
+  ENVIRONMENT: "dev"
+}));
+
 jest.mock('../../AuthContext', () => ({
   useAuth: jest.fn(),
 }));

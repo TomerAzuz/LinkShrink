@@ -18,7 +18,7 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("TOKEN_KEY"));
+  const [token, setToken] = useState(localStorage.getItem("TOKEN_KEY") || "");
   const [loading, setLoading] = useState(false);
   const refreshIntervalRef = useRef(null);
 
@@ -28,13 +28,17 @@ const AuthProvider = ({ children }) => {
         const response = await RequestService.get(USERS_ME, true);
         setUser(response.data);
       } catch (error) {
+        logout();
         console.error("unauthenticated");
         return;
       }
     };
     
-    fetchUser();
-  }, []);
+    if (token) {
+      fetchUser();
+    }
+
+  }, [token]);
 
   const register = async (authRequest) => {
     setLoading(true);
@@ -58,7 +62,7 @@ const AuthProvider = ({ children }) => {
 
       localStorage.setItem("TOKEN_KEY", token);
       setToken(token);
-      Cookies.set("REFRESH_TOKEN_KEY", refreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
+      Cookies.set("REFRESH_TOKEN_KEY", refreshToken, { expires: 7, secure: true, sameSite: 'Strict', httpOnly: true });
 
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
@@ -80,7 +84,7 @@ const AuthProvider = ({ children }) => {
       const { token: newToken, refreshToken: newRefreshToken, expiresIn } = response.data;
 
       localStorage.setItem("TOKEN_KEY", newToken);
-      Cookies.set("REFRESH_TOKEN_KEY", newRefreshToken, { expires: 7, secure: true, sameSite: 'Strict' });
+      Cookies.set("REFRESH_TOKEN_KEY", newRefreshToken, { expires: 7, secure: true, sameSite: 'Strict', httpOnly: true });
       setToken(newToken);
 
       if (refreshIntervalRef.current) {
@@ -149,7 +153,7 @@ const AuthProvider = ({ children }) => {
     if (refreshIntervalRef.current) {
       clearInterval(refreshIntervalRef.current);
     }
-    navigate("/login");
+    navigate("/landing");
   };
 
   return (

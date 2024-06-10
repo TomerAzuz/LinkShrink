@@ -124,9 +124,11 @@ public class AuthenticationService {
             User user = userService.findByEmail(userDetails.getUsername());
 
             String jwtToken = jwtService.generateToken(user);
+            String newRefreshToken = jwtService.generateRefreshToken(user);
+
             return AuthResponse.builder()
                     .token(jwtToken)
-                    .refreshToken(refreshToken)
+                    .refreshToken(newRefreshToken)
                     .expiresIn(jwtService.getExpirationTime())
                     .user(userMapper.userToUserResponse(user))
                     .build();

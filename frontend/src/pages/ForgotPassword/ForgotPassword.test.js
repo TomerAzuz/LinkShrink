@@ -6,6 +6,9 @@ import RequestResetCodeForm from './RequestResetCodeForm/RequestResetCodeForm';
 import VerifyResetCode from './VerifyResetCode/VerifyResetCode';
 import ResetPassword from './ResetPassword/ResetPassword';
 
+jest.mock('../../constants/urlConstants', () => ({
+  ENVIRONMENT: "dev"
+}));
 jest.mock('./RequestResetCodeForm/RequestResetCodeForm');
 jest.mock('./VerifyResetCode/VerifyResetCode');
 jest.mock('./ResetPassword/ResetPassword');

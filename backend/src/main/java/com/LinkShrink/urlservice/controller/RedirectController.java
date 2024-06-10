@@ -42,13 +42,12 @@ public class RedirectController {
     })
     public RedirectView redirect(@PathVariable("shortCode") String shortCode, HttpServletRequest request) {
         log.info("Redirect from short code: {}", shortCode);
-
         try {
             UrlMappingResponse response = urlService.redirect(shortCode, request);
             return new RedirectView(response.getLongUrl());
         } catch (UrlMappingNotFoundException e) {
             log.error("URL not found for short code: {}", shortCode);
-            return new RedirectView("/error", true);
+            return new RedirectView("/app/error", true);
         }
     }
 }

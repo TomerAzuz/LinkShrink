@@ -11,6 +11,7 @@ import Grid from "@mui/material/Grid";
 import { useAuth } from "../../AuthContext";
 import FormField from "../../components/FormField/FormField";
 import AuthButton from '../../components/Buttons/AuthButton';
+import Loader from "../../components/Loader/Loader";
 
 const SignUpSchema = Yup.object().shape({
   fullName: Yup.string()
@@ -38,6 +39,9 @@ const Signup = () => {
       toast.error(error.response?.data?.message || "Unexpected error");
     }
   };
+
+  if (loading)
+    return <Loader />;
 
   return (
     <Container maxWidth="sm">

@@ -77,13 +77,6 @@ const MyLinks = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  if (loading) {
-    return <Loader />
-  }
-
-  if (reachedEnd && links.length === 0) 
-    return <EmptyLinks />;
   
   return (
     <Container maxWidth="md">
@@ -101,15 +94,17 @@ const MyLinks = () => {
           <Typography variant="button">View Analytics</Typography> 
         </Button>
       </Box>
-      <Grid container spacing={2}>
-        {links.map((link) => (
-          <LinkDetailsItem 
-            key={link.id} 
-            link={link} 
-            deleteLink={deleteLink}
-          />
-        ))}
-      </Grid>
+      {reachedEnd && links.length === 0 ? <EmptyLinks /> : (
+        <Grid container spacing={2}>
+          {links.map((link) => (
+            <LinkDetailsItem 
+              key={link.id} 
+              link={link} 
+              deleteLink={deleteLink}
+            />
+          ))}
+        </Grid>
+      )}
       <Box textAlign="center" mt={4}>
         {loading && <Loader />}
       </Box>

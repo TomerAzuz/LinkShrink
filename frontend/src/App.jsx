@@ -14,10 +14,10 @@ import Analytics from "./pages/Analytics/Analytics";
 import ActivateAccount from "./pages/ActivateAccount/ActivateAccount";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import LandingPage from "./pages/LandingPage/LandingPage";
-import NotFound from "./pages/NotFound/NotFound";
+import ErrorPage from "./pages/ErrorPage/ErrorPage";
 
 const App = () => (
-  <Router>
+  <Router basename="/app">
     <AuthProvider>
       <>
         <Toaster />
@@ -31,7 +31,8 @@ const App = () => (
           <Route path="/mylinks" element={<PrivateRoute component={MyLinks} />} />
           <Route path="/analytics" element={<PrivateRoute component={Analytics} />} />
           <Route path="/" element={<PrivateRoute component={Home} />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/error/:status" element={<ErrorPage />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </>
     </AuthProvider>

@@ -85,8 +85,7 @@ public class UrlService {
 
     @Cacheable(value = "urlMappings", key = "#p0")
     public UrlMappingResponse redirect(String shortCode, HttpServletRequest request) {
-        if (!shortCodeValidator.isValidShortCode(shortCode) ||
-                !urlRepository.existsByShortCode(shortCode)) {
+        if (!shortCodeValidator.isValidShortCode(shortCode)) {
             throw new InvalidShortCodeException("Invalid short code");
         }
 

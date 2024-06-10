@@ -54,7 +54,7 @@ public class RedirectControllerTests {
 
         RedirectView redirectView = redirectController.redirect(shortCode, request);
 
-        assertEquals("/error", redirectView.getUrl());
+        assertEquals("/app/error", redirectView.getUrl());
         verify(urlService, times(1)).redirect(shortCode, request);
     }
 }

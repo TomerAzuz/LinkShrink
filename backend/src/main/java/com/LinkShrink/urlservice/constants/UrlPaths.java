@@ -2,9 +2,7 @@ package com.LinkShrink.urlservice.constants;
 
 public class UrlPaths {
     public static final String API_V1 = "/api/v1";
-    public static final String SHORTCODE = "/{shortCode}";
-    // TODO: define ui routes
-
+    public static final String SHORTCODE = "/{shortCode:[a-zA-Z0-9]{6}}";
     public static final String API_V1_URL = API_V1 + "/url";
     public static final String API_V1_AUTH = API_V1 + "/auth";
     public static final String API_V1_ANALYTICS = API_V1 + "/analytics";

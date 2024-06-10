@@ -10,6 +10,7 @@ import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundExcep
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.security.SignatureException;
 import java.util.Date;
@@ -83,10 +85,15 @@ public class ControllerAdvice {
             Exception.class
     })
     @ResponseStatus
-    public ErrorResponse handleException(Exception ex, WebRequest request) {
+    public ErrorResponse handleException(Exception ex, WebRequest request, HttpServletResponse response) throws IOException {
         HttpStatus status = exceptionStatusMap.getOrDefault(ex.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
         ErrorResponse errorResponse = createErrorResponse(status, ex, request);
         logError(errorResponse);
+
+        if (shouldRedirect(status)) {
+            response.setStatus(status.value());
+            response.sendRedirect("/app/error/" + status.value());
+        }
         return errorResponse;
     }
 
@@ -117,5 +124,10 @@ public class ControllerAdvice {
                 errorResponse.getError(),
                 errorResponse.getMessage(),
                 errorResponse.getPath());
+    }
+
+    private boolean shouldRedirect(HttpStatus status) {
+        return status == HttpStatus.INTERNAL_SERVER_ERROR ||
+               status == HttpStatus.TOO_MANY_REQUESTS;
     }
 }
