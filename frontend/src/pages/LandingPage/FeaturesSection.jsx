@@ -1,6 +1,6 @@
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import LinkIcon from '@mui/icons-material/Link';
 import QRCodeIcon from '@mui/icons-material/QrCode';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
@@ -22,7 +22,8 @@ const FeaturesSection = () => (
           <QRCodeIcon style={{ fontSize: 56, color: '#4caf50' }} />
           <Typography variant="h6">QR Code Generation</Typography>
           <Typography variant="body2">
-            Instantly generate QR codes for your URLs to make them accessible on the go.
+            Instantly generate QR codes for your URLs to make them accessible on
+            the go.
           </Typography>
         </Box>
       </Grid>

@@ -32,6 +32,7 @@ import static com.LinkShrink.urlservice.constants.UrlPaths.*;
 public class UrlController {
 
     private static final Logger log = LoggerFactory.getLogger(UrlController.class);
+
     @Value("${server.url}")
     private String baseUrl;
 

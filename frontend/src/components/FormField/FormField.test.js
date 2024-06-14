@@ -1,8 +1,11 @@
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { toBeInTheDocument, toHaveAttribute } from '@testing-library/jest-dom/matchers';
+import {
+  toBeInTheDocument,
+  toHaveAttribute,
+} from '@testing-library/jest-dom/matchers';
 import { TextField } from '@mui/material';
-import FormField from './FormField'; 
+import FormField from './FormField';
 
 expect.extend({ toBeInTheDocument, toHaveAttribute });
 

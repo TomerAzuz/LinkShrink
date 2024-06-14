@@ -10,12 +10,22 @@ describe('UrlForm Component', () => {
   });
 
   test('renders without crashing', () => {
-    render(<UrlForm handleSubmit={handleSubmitMock} buttonLabel="Submit" endpoint="/submit-url" />);
+    render(
+      <UrlForm
+        handleSubmit={handleSubmitMock}
+        buttonLabel="Submit"
+        endpoint="/submit-url"
+      />
+    );
   });
 
   test('validates URL correctly', async () => {
     const { getByLabelText, getByText } = render(
-      <UrlForm handleSubmit={handleSubmitMock} buttonLabel="Submit" endpoint="/submit-url" />
+      <UrlForm
+        handleSubmit={handleSubmitMock}
+        buttonLabel="Submit"
+        endpoint="/submit-url"
+      />
     );
 
     const input = getByLabelText('Insert URL');
@@ -30,7 +40,11 @@ describe('UrlForm Component', () => {
 
   test('calls handleSubmit with correct values on form submission', async () => {
     const { getByLabelText, getByText } = render(
-      <UrlForm handleSubmit={handleSubmitMock} buttonLabel="Submit" endpoint="/submit-url" />
+      <UrlForm
+        handleSubmit={handleSubmitMock}
+        buttonLabel="Submit"
+        endpoint="/submit-url"
+      />
     );
 
     const input = getByLabelText('Insert URL');
@@ -40,7 +54,11 @@ describe('UrlForm Component', () => {
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(handleSubmitMock).toHaveBeenCalledWith({ url: 'https://example.com' }, expect.anything(), '/submit-url');
+      expect(handleSubmitMock).toHaveBeenCalledWith(
+        { url: 'https://example.com' },
+        expect.anything(),
+        '/submit-url'
+      );
     });
   });
 });

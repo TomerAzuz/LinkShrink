@@ -1,9 +1,9 @@
 import React from 'react';
-import { useParams } from "react-router-dom";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
+import { useParams } from 'react-router-dom';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
-import errorMessages from "../../constants/errorMessages";
+import errorMessages from '../../constants/errorMessages';
 
 const ErrorPage = () => {
   const { status } = useParams();
@@ -17,7 +17,7 @@ const ErrorPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '80vh', 
+        height: '80vh',
       }}
     >
       <Typography variant="h3" component="h1" gutterBottom align="center">

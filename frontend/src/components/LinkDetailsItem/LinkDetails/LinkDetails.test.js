@@ -40,7 +40,7 @@ describe('LinkDetails Component', () => {
 
     const titleElement = screen.getByText(longTitle);
     const urlElement = screen.getByText(testUrl);
-    
+
     expect(titleElement).toHaveStyle('textOverflow: ellipsis');
     expect(urlElement).toHaveStyle('textOverflow: ellipsis');
   });

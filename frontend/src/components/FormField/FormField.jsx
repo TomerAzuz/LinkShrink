@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const FormField = ({ label, type, field, form, autoComplete }) => {
   const { name } = field;
@@ -18,27 +18,24 @@ const FormField = ({ label, type, field, form, autoComplete }) => {
 
   return (
     <Box>
-      <TextField 
+      <TextField
         {...field}
         label={label}
-        type={showPassword ? "text" : type}
+        type={showPassword ? 'text' : type}
         error={!!errorText}
         helperText={errorText}
-        variant='outlined'
+        variant="outlined"
         fullWidth
         margin="normal"
         autoComplete={autoComplete}
         InputProps={{
           endAdornment: type === 'password' && (
             <InputAdornment position="end">
-              <IconButton
-                onClick={togglePasswordVisibility}
-                edge="end"
-              >
+              <IconButton onClick={togglePasswordVisibility} edge="end">
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
-          )
+          ),
         }}
       />
     </Box>

@@ -4,7 +4,7 @@ import static org.mockito.Mockito.*;
 
 import com.LinkShrink.urlservice.dto.UrlMappingResponse;
 import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundException;
-import com.LinkShrink.urlservice.service.UrlService;
+import com.LinkShrink.urlservice.service.RedirectService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class RedirectControllerTests {
 
     @Mock
-    private UrlService urlService;
+    private RedirectService redirectService;
 
     @InjectMocks
     private RedirectController redirectController;
@@ -38,23 +38,23 @@ public class RedirectControllerTests {
                 .longUrl(longUrl)
                 .build();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        when(urlService.redirect(shortCode, request)).thenReturn(response);
+        when(redirectService.redirect(shortCode, request)).thenReturn(response);
 
         RedirectView redirectView = redirectController.redirect(shortCode, request);
 
         assertEquals(longUrl, redirectView.getUrl());
-        verify(urlService, times(1)).redirect(shortCode, request);
+        verify(redirectService, times(1)).redirect(shortCode, request);
     }
 
     @Test
     void testShortCodeNotFound() {
         String shortCode = "notfound";
         MockHttpServletRequest request = new MockHttpServletRequest();
-        when(urlService.redirect(shortCode, request)).thenThrow(new UrlMappingNotFoundException("URL not found"));
+        when(redirectService.redirect(shortCode, request)).thenThrow(new UrlMappingNotFoundException("URL not found"));
 
         RedirectView redirectView = redirectController.redirect(shortCode, request);
 
         assertEquals("/app/error", redirectView.getUrl());
-        verify(urlService, times(1)).redirect(shortCode, request);
+        verify(redirectService, times(1)).redirect(shortCode, request);
     }
 }

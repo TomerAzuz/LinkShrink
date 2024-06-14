@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const FaviconDisplay = ({ url }) => {
   const favicon = `https://www.google.com/s2/favicons?domain=${url}&sz=128`;

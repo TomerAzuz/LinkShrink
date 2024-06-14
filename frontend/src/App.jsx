@@ -1,20 +1,20 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import "./App.css"
-import PrivateRoute from "./routes/PrivateRoute";
-import Home from "./pages/Home/Home";
-import Signup from "./pages/Signup/Signup";
-import Login from "./pages/Login/Login";
-import Navbar from "./components/Navbar/Navbar";
-import AuthProvider from "./AuthContext";
-import MyLinks from "./pages/MyLinks/MyLinks";
-import Analytics from "./pages/Analytics/Analytics";
-import ActivateAccount from "./pages/ActivateAccount/ActivateAccount";
-import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
-import LandingPage from "./pages/LandingPage/LandingPage";
-import ErrorPage from "./pages/ErrorPage/ErrorPage";
+import './App.css';
+import PrivateRoute from './routes/PrivateRoute';
+import Home from './pages/Home/Home';
+import Signup from './pages/Signup/Signup';
+import Login from './pages/Login/Login';
+import Navbar from './components/Navbar/Navbar';
+import AuthProvider from './AuthContext';
+import MyLinks from './pages/MyLinks/MyLinks';
+import Analytics from './pages/Analytics/Analytics';
+import ActivateAccount from './pages/ActivateAccount/ActivateAccount';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
+import LandingPage from './pages/LandingPage/LandingPage';
+import ErrorPage from './pages/ErrorPage/ErrorPage';
 
 const App = () => (
   <Router basename="/app">
@@ -28,8 +28,14 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/forgot" element={<ForgotPassword />} />
           <Route path="/activate" element={<ActivateAccount />} />
-          <Route path="/mylinks" element={<PrivateRoute component={MyLinks} />} />
-          <Route path="/analytics" element={<PrivateRoute component={Analytics} />} />
+          <Route
+            path="/mylinks"
+            element={<PrivateRoute component={MyLinks} />}
+          />
+          <Route
+            path="/analytics"
+            element={<PrivateRoute component={Analytics} />}
+          />
           <Route path="/" element={<PrivateRoute component={Home} />} />
           <Route path="/error/:status" element={<ErrorPage />} />
           <Route path="*" element={<ErrorPage />} />

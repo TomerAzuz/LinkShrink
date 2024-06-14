@@ -18,8 +18,7 @@ public interface UrlMapper {
 
     @Named("constructShortUrl")
     default String constructShortUrl(String shortCode) {
-        String baseUrl = "http://localhost:9000";
-        return baseUrl + "/" + shortCode;
+        return "http://localhost:9000/" + shortCode;
     }
 }
 

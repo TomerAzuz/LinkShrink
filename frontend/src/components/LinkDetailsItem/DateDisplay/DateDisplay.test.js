@@ -7,10 +7,10 @@ describe('DateDisplay Component', () => {
 
   test('displays the date within a Grid item', () => {
     render(<DateDisplay createdAt={testDate} />);
-    
+
     const dateText = new Date(testDate).toLocaleDateString();
     const gridItem = screen.getByText(dateText);
-    
+
     expect(gridItem).toBeInTheDocument();
     expect(gridItem).toHaveTextContent(dateText);
   });

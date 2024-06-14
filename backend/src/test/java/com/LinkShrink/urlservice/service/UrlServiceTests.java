@@ -3,23 +3,18 @@ package com.LinkShrink.urlservice.service;
 import com.LinkShrink.urlservice.dto.UrlDto;
 import com.LinkShrink.urlservice.dto.UrlMappingResponse;
 import com.LinkShrink.urlservice.dto.UserResponse;
-import com.LinkShrink.urlservice.event.UrlAccessedEvent;
-import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidShortCodeException;
 import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidUrlException;
 import com.LinkShrink.urlservice.mapper.UrlMapper;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
-import com.LinkShrink.urlservice.validator.ShortCodeValidator;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -51,13 +46,7 @@ public class UrlServiceTests {
     private EmailService emailService;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
-
-    @Mock
     private CustomUrlValidator customUrlValidator;
-
-    @Mock
-    private ShortCodeValidator shortCodeValidator;
 
     @BeforeEach
     public void setUp() {
@@ -121,32 +110,6 @@ public class UrlServiceTests {
         verify(userService, times(1)).getCurrentUser();
         verify(urlRepository, times(1)).findAllByCreatedBy(eq(1L), eq(pageable));
         verify(urlMapper, times(2)).urlMappingToUrlMappingResponse(any(UrlMapping.class));
-    }
-
-    @Test
-    public void testRedirectInvalidShortCode() {
-        String shortCode = "invalid";
-        when(shortCodeValidator.isValidShortCode(shortCode)).thenReturn(false);
-
-        assertThrows(InvalidShortCodeException.class, () ->
-                urlService.redirect(shortCode, mock(HttpServletRequest.class)));
-    }
-
-    @Test
-    public void testRedirectValidShortCode() {
-        String shortCode = "abc123";
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(shortCodeValidator.isValidShortCode(shortCode)).thenReturn(true);
-
-        UrlMapping urlMapping = new UrlMapping();
-        urlMapping.setShortCode(shortCode);
-        when(urlRepository.findByShortCode(shortCode)).thenReturn(Optional.of(urlMapping));
-        when(urlMapper.urlMappingToUrlMappingResponse(any(UrlMapping.class))).thenReturn(new UrlMappingResponse());
-
-        UrlMappingResponse response = urlService.redirect(shortCode, request);
-
-        assertNotNull(response);
-        verify(eventPublisher, times(1)).publishEvent(any(UrlAccessedEvent.class));
     }
 
     @Test

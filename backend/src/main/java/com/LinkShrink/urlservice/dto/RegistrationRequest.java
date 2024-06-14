@@ -22,7 +22,5 @@ public class RegistrationRequest {
             message = "Invalid password. Password must contain between 8 to 16 characters.")
     private String password;
 
-    @Size(min = 8, max = 16,
-            message = "Invalid password. Password must contain between 8 to 16 characters.")
     private String confirmPassword;
 }

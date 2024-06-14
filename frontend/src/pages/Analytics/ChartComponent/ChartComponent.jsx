@@ -10,7 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
 
@@ -26,7 +26,15 @@ ChartJS.register(
 );
 
 const ChartComponent = ({ data, metric }) => {
-  const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#66FF66'];
+  const colors = [
+    '#FF6384',
+    '#36A2EB',
+    '#FFCE56',
+    '#4BC0C0',
+    '#9966FF',
+    '#FF9F40',
+    '#66FF66',
+  ];
 
   const groupBy = (data, getKey) => {
     return data.reduce((result, item) => {
@@ -43,20 +51,26 @@ const ChartComponent = ({ data, metric }) => {
     case 'country':
     case 'deviceType':
     case 'browser': {
-      const groupedData = groupBy(data, item => item[metric]);
+      const groupedData = groupBy(data, (item) => item[metric]);
       const labels = Object.keys(groupedData);
       const accessCounts = Object.values(groupedData);
-      const backgroundColors = labels.map((_, index) => colors[index % colors.length]);
+      const backgroundColors = labels.map(
+        (_, index) => colors[index % colors.length]
+      );
 
       const chartData = {
         labels: labels,
-        datasets: [{
-          label: `Access count by ${metric}`,
-          data: accessCounts,
-          backgroundColor: backgroundColors,
-          borderColor: backgroundColors.map(color => color.replace('FF', 'AA')),
-          borderWidth: 1
-        }]
+        datasets: [
+          {
+            label: `Access count by ${metric}`,
+            data: accessCounts,
+            backgroundColor: backgroundColors,
+            borderColor: backgroundColors.map((color) =>
+              color.replace('FF', 'AA')
+            ),
+            borderWidth: 1,
+          },
+        ],
       };
 
       return (
@@ -70,9 +84,9 @@ const ChartComponent = ({ data, metric }) => {
                 plugins: {
                   legend: {
                     display: true,
-                    position: 'top'
+                    position: 'top',
                   },
-                }
+                },
               }}
             />
           </Box>
@@ -80,16 +94,18 @@ const ChartComponent = ({ data, metric }) => {
       );
     }
     case 'accessTime': {
-      const groupedByDate = groupBy(data, item => {
+      const groupedByDate = groupBy(data, (item) => {
         const date = new Date(item.accessTime);
         date.setUTCHours(0, 0, 0, 0);
         return date.toISOString().split('T')[0];
       });
 
-      const accessTimes = Object.keys(groupedByDate).sort().map(date => ({
-        x: new Date(date),
-        y: groupedByDate[date],
-      }));
+      const accessTimes = Object.keys(groupedByDate)
+        .sort()
+        .map((date) => ({
+          x: new Date(date),
+          y: groupedByDate[date],
+        }));
 
       const chartData = {
         datasets: [
@@ -138,10 +154,7 @@ const ChartComponent = ({ data, metric }) => {
       return (
         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
           <Box width="600px" height="300px">
-            <Line
-              data={chartData}
-              options={options}
-            />
+            <Line data={chartData} options={options} />
           </Box>
         </Box>
       );

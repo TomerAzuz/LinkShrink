@@ -4,21 +4,15 @@ import com.LinkShrink.urlservice.constants.EmailTemplates;
 import com.LinkShrink.urlservice.dto.UrlDto;
 import com.LinkShrink.urlservice.dto.UrlMappingResponse;
 import com.LinkShrink.urlservice.dto.UserResponse;
-import com.LinkShrink.urlservice.event.UrlAccessedEvent;
-import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidShortCodeException;
 import com.LinkShrink.urlservice.exception.UrlExceptions.InvalidUrlException;
 import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundException;
 import com.LinkShrink.urlservice.mapper.UrlMapper;
 import com.LinkShrink.urlservice.model.UrlMapping;
 import com.LinkShrink.urlservice.repository.UrlRepository;
 import com.LinkShrink.urlservice.validator.CustomUrlValidator;
-import com.LinkShrink.urlservice.validator.ShortCodeValidator;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,13 +48,7 @@ public class UrlService {
     private EmailService emailService;
 
     @Autowired
-    private ApplicationEventPublisher eventPublisher;
-
-    @Autowired
     private CustomUrlValidator customUrlValidator;
-
-    @Autowired
-    private ShortCodeValidator shortCodeValidator;
 
     public UrlMappingResponse createUrlMapping(String longUrl) {
         if (!isValidUrl(longUrl, false)) {
@@ -81,19 +69,6 @@ public class UrlService {
                 .stream()
                 .map(url -> urlMapper.urlMappingToUrlMappingResponse(url))
                 .toList();
-    }
-
-    @Cacheable(value = "urlMappings", key = "#p0")
-    public UrlMappingResponse redirect(String shortCode, HttpServletRequest request) {
-        if (!shortCodeValidator.isValidShortCode(shortCode)) {
-            throw new InvalidShortCodeException("Invalid short code");
-        }
-
-        UrlMapping urlMapping = urlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new UrlMappingNotFoundException("URL not found"));
-
-            eventPublisher.publishEvent(new UrlAccessedEvent(urlMapping, request));
-            return urlMapper.urlMappingToUrlMappingResponse(urlMapping);
     }
 
     public void deleteUrlMapping(Long id) {
@@ -140,7 +115,7 @@ public class UrlService {
         String shortCode = extractShortCodeFromUrl(url);
         Optional<UrlMapping> optionalMapping = Optional.of(
                 urlRepository.findByShortCode(shortCode)
-                .orElseThrow(() -> new UrlMappingNotFoundException("URL not found")));
+                        .orElseThrow(() -> new UrlMappingNotFoundException("URL not found")));
 
         UrlMapping urlMapping = optionalMapping.get();
 
@@ -151,7 +126,7 @@ public class UrlService {
         boolean isValid = customUrlValidator.isValid(url);
 
         return isBaseUrl ? isValid && url.startsWith(baseUrl)
-                         : isValid && !url.startsWith(baseUrl);
+                : isValid && !url.startsWith(baseUrl);
     }
 
     private UrlMapping constructUrlMapping(String longUrl) {

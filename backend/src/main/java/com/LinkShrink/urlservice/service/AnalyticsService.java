@@ -19,7 +19,7 @@ import eu.bitwalker.useragentutils.UserAgent;
 
 import java.util.*;
 
-import static com.LinkShrink.urlservice.constants.UrlPaths.IP_API_URL;
+import static com.LinkShrink.urlservice.constants.UrlPaths.GEOLOCATION_API;
 
 @Service
 public class AnalyticsService {
@@ -72,7 +72,7 @@ public class AnalyticsService {
     private String getCountryFromIp(String ip) {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(
-                IP_API_URL + "?fields=country&query=" + ip,
+                GEOLOCATION_API + "?fields=country&query=" + ip,
                 String.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {

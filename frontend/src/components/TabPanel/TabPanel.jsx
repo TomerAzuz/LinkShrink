@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography } from '@mui/material';
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -14,7 +14,7 @@ const TabPanel = (props) => {
     >
       {value === index && <Box>{children}</Box>}
     </Typography>
-  )
+  );
 };
 
 export default TabPanel;

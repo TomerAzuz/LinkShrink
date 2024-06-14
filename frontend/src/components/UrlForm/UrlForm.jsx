@@ -11,14 +11,14 @@ import { Typography } from '@mui/material';
 const UrlInputSchema = Yup.object().shape({
   url: Yup.string()
     .required('URL is required')
-    .test('is-valid-url', 'Invalid URL', value => {
+    .test('is-valid-url', 'Invalid URL', (value) => {
       try {
         validateUrl(value);
         return true;
       } catch {
         return false;
       }
-    })
+    }),
 });
 
 const UrlForm = ({ handleSubmit, buttonLabel, endpoint }) => (
@@ -36,7 +36,7 @@ const UrlForm = ({ handleSubmit, buttonLabel, endpoint }) => (
           component={FormField}
           autoComplete="off"
         />
-        <Box display='flex' justifyContent='center' m={2}>
+        <Box display="flex" justifyContent="center" m={2}>
           <Button
             type="submit"
             variant="contained"
@@ -48,7 +48,7 @@ const UrlForm = ({ handleSubmit, buttonLabel, endpoint }) => (
               borderRadius: '8px',
               '&:hover': {
                 backgroundColor: '#303f9f',
-              }
+              },
             }}
           >
             <Typography variant="button">{buttonLabel}</Typography>

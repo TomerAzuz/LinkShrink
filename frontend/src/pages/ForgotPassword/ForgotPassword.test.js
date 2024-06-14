@@ -7,7 +7,7 @@ import VerifyResetCode from './VerifyResetCode/VerifyResetCode';
 import ResetPassword from './ResetPassword/ResetPassword';
 
 jest.mock('../../constants/urlConstants', () => ({
-  ENVIRONMENT: "dev"
+  ENVIRONMENT: 'dev',
 }));
 jest.mock('./RequestResetCodeForm/RequestResetCodeForm');
 jest.mock('./VerifyResetCode/VerifyResetCode');
@@ -27,9 +27,7 @@ VerifyResetCode.mockImplementation(({ setStep }) => (
   </div>
 ));
 
-ResetPassword.mockImplementation(({ setStep }) => (
-  <div>ResetPassword</div>
-));
+ResetPassword.mockImplementation(({ setStep }) => <div>ResetPassword</div>);
 
 describe('ForgotPassword Component', () => {
   test('initial render shows RequestResetCodeForm', () => {

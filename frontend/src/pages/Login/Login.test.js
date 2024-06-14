@@ -6,7 +6,7 @@ import Login from './Login';
 import { useAuth } from '../../AuthContext';
 
 jest.mock('../../constants/urlConstants', () => ({
-  ENVIRONMENT: "dev"
+  ENVIRONMENT: 'dev',
 }));
 
 jest.mock('../../AuthContext', () => ({
@@ -59,8 +59,12 @@ describe('Login Component', () => {
       </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'password' },
+    });
     fireEvent.click(screen.getByText(/Login/i));
 
     await waitFor(() => {
@@ -88,8 +92,12 @@ describe('Login Component', () => {
       </BrowserRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/Email address/i), { target: { value: 'test@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'password' } });
+    fireEvent.change(screen.getByLabelText(/Email address/i), {
+      target: { value: 'test@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: 'password' },
+    });
     fireEvent.click(screen.getByText(/Login/i));
 
     await waitFor(() => {

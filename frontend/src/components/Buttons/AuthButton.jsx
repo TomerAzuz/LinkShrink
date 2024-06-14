@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Button from "@mui/material/Button";
+import Button from '@mui/material/Button';
 import { Typography } from '@mui/material';
 
 const AuthButton = ({ to, text, ...props }) => (
@@ -20,7 +20,7 @@ const AuthButton = ({ to, text, ...props }) => (
       minWidth: '150px',
       '&:hover': {
         bgcolor: theme.palette.primary.dark,
-        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', 
+        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
       },
       boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.2)',
       '&.Mui-disabled': {

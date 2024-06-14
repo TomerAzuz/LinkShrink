@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 8443
   url: "https://l-1.me"
   tomcat:
     connection-timeout: 2s
@@ -11,26 +11,24 @@ server:
 spring:
   application:
     name: url-service
+  config:
+    import: optional:file:src/main/resources/.env[.properties]
   datasource:
-    username: user
-    password: password
-    url: jdbc:postgresql://localhost:5432/linkshrink_db
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    url: ${DATABASE_URL}
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 2000
       maximum-pool-size: 5
-  config:
-    import: optional:file:src/main/resources/.env[.properties]
   cache:
     type: caffeine
     cache-names: urlMappings
     caffeine:
-      spec: maximumSize=500
-      expireAfterWrite: 10m
+      spec: maximumSize=1000
+      expireAfterWrite: 30d
       recordStats: true
-      writer:
-        expireAfterAccess:
-          urlMappings: 1d
+
   mail:
     host: smtp.gmail.com
     username: ${ADMIN_EMAIL}
@@ -56,7 +54,7 @@ spring:
       admin_password: ${ADMIN_PASSWORD_PROD}
 
 jwt:
-  secret:
+  secret: ${JWT_SECRET_PROD}
   expiration-time: 3600000 # 1 hour
   refresh:
     expiration-time: 604800000 # 7 days

@@ -1,11 +1,11 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import LinkDetailsItem from "./LinkDetailsItem";
-import { qrCodeToBase64 } from "../../utils/qrCodeToBase64";
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import LinkDetailsItem from './LinkDetailsItem';
+import { qrCodeToBase64 } from '../../utils/qrCodeToBase64';
 import { BrowserRouter } from 'react-router-dom';
 import { useAuth } from '../../AuthContext';
 
-jest.mock("../../utils/qrCodeToBase64");
+jest.mock('../../utils/qrCodeToBase64');
 jest.mock('./LinkDetailsItem.css', () => ({}));
 jest.mock('../../AuthContext', () => ({
   useAuth: jest.fn(),
@@ -22,12 +22,12 @@ const link = {
 
 const deleteLink = jest.fn();
 
-describe("LinkDetailsItem Component", () => {
+describe('LinkDetailsItem Component', () => {
   beforeEach(() => {
     qrCodeToBase64.mockReturnValue('mock-base64-qr-code');
   });
 
-  test("renders without crashing", () => {
+  test('renders without crashing', () => {
     render(
       <BrowserRouter>
         <LinkDetailsItem link={link} deleteLink={deleteLink} />
@@ -38,7 +38,7 @@ describe("LinkDetailsItem Component", () => {
     expect(screen.getByText('https://short.ly/abcd')).toBeInTheDocument();
   });
 
-  test("toggles QR code view on button click", () => {
+  test('toggles QR code view on button click', () => {
     render(
       <BrowserRouter>
         <LinkDetailsItem link={link} deleteLink={deleteLink} />
@@ -46,15 +46,15 @@ describe("LinkDetailsItem Component", () => {
     );
     const button = screen.getByRole('button', { name: /view qr code/i });
     fireEvent.click(button);
-  
+
     const qrCodeImg = screen.getByAltText('QR Code');
     expect(qrCodeImg).toHaveAttribute('src', 'mock-base64-qr-code');
-  
+
     fireEvent.click(button);
     expect(screen.getByText('https://short.ly/abcd')).toBeInTheDocument();
   });
 
-  test("opens delete confirmation dialog on delete button click", () => {
+  test('opens delete confirmation dialog on delete button click', () => {
     render(
       <BrowserRouter>
         <LinkDetailsItem link={link} deleteLink={deleteLink} />
@@ -63,10 +63,12 @@ describe("LinkDetailsItem Component", () => {
     const deleteButton = screen.getByRole('button', { name: /remove link/i });
     fireEvent.click(deleteButton);
     expect(screen.getByText('Delete Link')).toBeInTheDocument();
-    expect(screen.getByText('Are you sure you want to permanently delete this link?')).toBeInTheDocument();
+    expect(
+      screen.getByText('Are you sure you want to permanently delete this link?')
+    ).toBeInTheDocument();
   });
 
-  test("calls deleteLink function when confirming delete", () => {
+  test('calls deleteLink function when confirming delete', () => {
     render(
       <BrowserRouter>
         <LinkDetailsItem link={link} deleteLink={deleteLink} />

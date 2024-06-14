@@ -1,12 +1,18 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { toBeInTheDocument } from '@testing-library/jest-dom/matchers';
 import CopyLink from './CopyLink';
-import { toast } from "react-hot-toast";
+import { toast } from 'react-hot-toast';
 
 expect.extend({ toBeInTheDocument });
 
-jest.mock("react-hot-toast", () => ({
+jest.mock('react-hot-toast', () => ({
   toast: {
     success: jest.fn(),
   },
@@ -19,7 +25,7 @@ Object.assign(navigator, {
 });
 
 describe('CopyLink Component', () => {
-  const url = "https://example.com";
+  const url = 'https://example.com';
   const variant = 'body1';
 
   test('renders the component with given props', () => {
@@ -46,7 +52,7 @@ describe('CopyLink Component', () => {
       fireEvent.click(button);
     });
     await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("Link copied to clipboard");
+      expect(toast.success).toHaveBeenCalledWith('Link copied to clipboard');
     });
   });
 

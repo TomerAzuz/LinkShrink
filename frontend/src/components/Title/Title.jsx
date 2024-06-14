@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import Typography from '@mui/material/Typography';
 
 const Title = ({ text, variant = 'h4', color = '#333', ...props }) => (
@@ -8,7 +8,7 @@ const Title = ({ text, variant = 'h4', color = '#333', ...props }) => (
     color={color}
     fontWeight="bold"
     gutterBottom
-    sx={{ userSelect: "none" }}
+    sx={{ userSelect: 'none' }}
     {...props}
   >
     {text}

@@ -3,8 +3,9 @@ package com.LinkShrink.urlservice.controller;
 import com.LinkShrink.urlservice.dto.ErrorResponse;
 import com.LinkShrink.urlservice.dto.UrlMappingResponse;
 import com.LinkShrink.urlservice.exception.UrlExceptions.UrlMappingNotFoundException;
-import com.LinkShrink.urlservice.service.UrlService;
+import com.LinkShrink.urlservice.service.RedirectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +30,7 @@ public class RedirectController {
     private static final Logger log = LoggerFactory.getLogger(RedirectController.class);
 
     @Autowired
-    private UrlService urlService;
+    private RedirectService redirectService;
 
     @GetMapping(SHORTCODE)
     @ResponseStatus(HttpStatus.FOUND)
@@ -40,10 +41,12 @@ public class RedirectController {
             @ApiResponse(responseCode = "404", description = "URL not found",
                     content = { @Content(schema = @Schema(implementation = ErrorResponse.class)) })
     })
-    public RedirectView redirect(@PathVariable("shortCode") String shortCode, HttpServletRequest request) {
+    public RedirectView redirect(
+            @PathVariable("shortCode") String shortCode,
+            @Parameter(hidden = true) HttpServletRequest request) {
         log.info("Redirect from short code: {}", shortCode);
         try {
-            UrlMappingResponse response = urlService.redirect(shortCode, request);
+            UrlMappingResponse response = redirectService.redirect(shortCode, request);
             return new RedirectView(response.getLongUrl());
         } catch (UrlMappingNotFoundException e) {
             log.error("URL not found for short code: {}", shortCode);

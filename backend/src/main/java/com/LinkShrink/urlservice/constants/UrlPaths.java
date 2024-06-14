@@ -29,5 +29,6 @@ public class UrlPaths {
     public static final String ME = "/me";
 
     /* External */
-    public static final String IP_API_URL = "http://ip-api.com/json/";
+    public static final String GEOLOCATION_API = "http://ip-api.com/json/";
 }
+

@@ -34,7 +34,9 @@ const NotificationBanner = () => {
       }}
     >
       <Typography variant="body2" color="text.primary" sx={{ mr: 2 }}>
-        We collect data about your interactions with our service to improve user experience. By continuing to use this site, you consent to our use of cookies and analytics.
+        We collect data about your interactions with our service to improve user
+        experience. By continuing to use this site, you consent to our use of
+        cookies and analytics.
       </Typography>
       <Button variant="contained" color="primary" onClick={handleAccept}>
         Got it!
