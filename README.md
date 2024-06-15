@@ -2,9 +2,9 @@
 
 LinkShrink is a URL shortening service designed to provide users with efficient URL management. It offers features such as URL shortening, detailed analytics, and QR code generation.
 
-<div style="text-align: center;">
-<a href="https://l-1.me/111111" style="font-size:18px;"> <strong>Live Website </strong>🌐</a>
-</div>
+<p align="center">
+  <a href="https://l-1.me/111111" style="font-size:18px;"> <strong>Live Website </strong>🌐</a>
+</p>
 <br/>
 
 **Login Credentials** 🔑 <br/>
@@ -43,7 +43,7 @@ https://l-1.me/swagger-ui/index.html#/
 
 ## Screenshots 📸
 
-<div style="text-align: center;">
+<p align="center">
   <h4>Landing Page</h4>
   <a href="https://ibb.co/yF5Fyvq">
     <img src="https://i.ibb.co/7tVtWMK/landing.png" alt="Landing" title="Landing Page" style="width: 600px; height: auto;"/>
@@ -87,4 +87,4 @@ https://l-1.me/swagger-ui/index.html#/
   <a href="https://ibb.co/82jTNYf">
     <img src="https://i.ibb.co/nfDZ6PY/reset-password3.png" alt="password-reset-3" title="Password Reset - Step 3" style="width: 600px; height: auto"/>
   </a>
-</div>
+</p>
