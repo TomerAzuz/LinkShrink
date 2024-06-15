@@ -43,7 +43,7 @@ https://l-1.me/swagger-ui/index.html#/
 
 ## Screenshots 📸
 
-<p align="center">
+<div align="center">
   <h4>Landing Page</h4>
   <a href="https://ibb.co/yF5Fyvq">
     <img src="https://i.ibb.co/7tVtWMK/landing.png" alt="Landing" title="Landing Page" style="width: 600px; height: auto;"/>
@@ -87,4 +87,4 @@ https://l-1.me/swagger-ui/index.html#/
   <a href="https://ibb.co/82jTNYf">
     <img src="https://i.ibb.co/nfDZ6PY/reset-password3.png" alt="password-reset-3" title="Password Reset - Step 3" style="width: 600px; height: auto"/>
   </a>
-</p>
+</div>
